@@ -1,77 +1,74 @@
-import { useState, view, text, input } from "@lynx-js/react"; // Combined imports
+import { useState, view, text, input } from "@lynx-js/react";
 import "./App.css";
-
-// Replace with your OpenAI API key
-const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"; // <-- REMEMBER TO REPLACE THIS!
 
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Function to send messages to the OpenAI API
-  const sendMessage = async (userMessage) => {
-    console.log("Sending message to AI:", userMessage); // Debugging
-    setMessages((prev) => [...prev, { text: userMessage, user: "me" }]);
-    setLoading(true); // Indicate that a response is being loaded
-
+  // Function to send messages to the backend API
+  const sendMessage = async (newMessages) => {
+    setLoading(true);
     try {
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-              { role: "system", content: "You are a helpful AI assistant." },
-              // Map existing messages to the OpenAI format
-              ...messages.map((m) => ({
-                role: m.user === "me" ? "user" : "assistant",
-                content: m.text,
-              })),
-              { role: "user", content: userMessage }, // Add the current user message
-            ],
-          }),
-        }
-      );
+      console.log("Payload being sent to backend:", {
+        messages: newMessages.map((m) => ({
+          role: m.user === "me" ? "user" : "assistant",
+          content: m.text,
+        })),
+      });
 
-      // Handle potential API errors (e.g., invalid API key, rate limits)
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: newMessages.map((m) => ({
+            role: m.user === "me" ? "user" : "assistant",
+            content: m.text,
+          })),
+        }),
+      });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      const text = await response.text();
+      console.log("Raw response text:", text);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error.message || `API error: ${response.status}`);
+        throw new Error(text || "Unknown error from backend.");
       }
 
-      const data = await response.json();
-      const aiMessage = data.choices[0].message.content;
+      const data = JSON.parse(text);
+      console.log("Parsed response data:", data);
 
-      console.log("AI response received:", aiMessage); // Debugging
-      setMessages((prev) => [...prev, { text: aiMessage, user: "bot" }]);
+      if (!data.reply) {
+        throw new Error("Invalid response from backend.");
+      }
+
+      setMessages([...newMessages, { text: data.reply, user: "bot" }]);
     } catch (error) {
-      console.error("AI Error:", error);
-      // Display an error message to the user
-      setMessages((prev) => [
-        ...prev,
-        { text: "Sorry, something went wrong. Please try again.", user: "bot" },
-      ]);
+      console.error("Error during API call:", error);
+      setMessages([...newMessages, { text: error.message || "Sorry, something went wrong. Please try again.", user: "bot" }]);
     } finally {
-      setLoading(false); // Stop loading indicator
+      setLoading(false);
     }
   };
 
   // Handler for when the user taps the send button
   const handleSend = () => {
-    console.log("handleSend triggered. Input value:", inputValue); // Debugging
-    if (!inputValue.trim() || loading) {
-        console.log("Blocked: Empty input or loading."); // Debugging
-        return;
+    const trimmedInput = inputValue ? inputValue.trim() : ""; // Fallback for undefined inputValue
+    console.log("handleSend triggered. Input value:", trimmedInput); // Debugging
+    if (!trimmedInput || loading) {
+      console.log("Blocked: Empty input or loading."); // Debugging
+      return;
     }
-    const userMessage = inputValue;
-    setInputValue(""); // Clear the input field
-    sendMessage(userMessage); // Send the message
+    const newMessages = [...messages, { text: trimmedInput, user: "me" }];
+    console.log("New messages array before setMessages:", newMessages); // Debugging
+    setMessages(newMessages);
+    console.log("Messages state after setMessages:", messages); // Debugging
+    setInputValue(""); // Clear the input field after sending the message
+    sendMessage(newMessages);
   };
 
   return (
@@ -94,17 +91,38 @@ export default function App() {
       <view className="input-area">
         <input
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          bindinput={(e) => {
+            const newValue = e.detail?.value || e.target?.value || ""; // Handle different event data structures
+            if (!loading) { // Prevent overwriting cleared state during loading
+              console.log("bindinput event triggered. Input value:", newValue); // Debugging
+              setInputValue(newValue); // Update state with the new value
+            }
+          }}
           placeholder="Type a message..."
         />
-        {/* Reverted to <view> with bindtouchstart to avoid 990100 error */}
-        <view 
-          className="send-button" 
-          bindtouchstart={handleSend} 
+        <view
+          className="send-button"
+          bindtap={() => {
+            console.log("bindtap event triggered"); // Debugging
+            handleSend();
+          }}
           style={loading ? { opacity: 0.5 } : {}} // Basic visual feedback for loading state
         >
           <text>{loading ? "..." : "Send"}</text>
         </view>
+      </view>
+
+      {/* Inline Debugging: Display inputValue, messages, and event trigger status */}
+      <view className="debug-inline">
+        <text>Inline Debug - Input Value: {inputValue}</text>
+        <text>Inline Debug - Messages: {JSON.stringify(messages)}</text>
+        <text>Inline Debug - Loading: {loading ? "true" : "false"}</text>
+        <text>Inline Debug - Last Event: {"bindinput or bindtap triggered"}</text>
+      </view>
+
+      {/* Static Debug Message */}
+      <view className="static-debug">
+        <text>Static Debug: App is rendering correctly.</text>
       </view>
     </view>
   );
