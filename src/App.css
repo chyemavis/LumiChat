@@ -1,25 +1,11 @@
 :root {
-  background-color: #000;
-  --color-text: #fff;
+  --color-bg: #ffffff;      /* Background outside chat */
+  --color-text: #ffffff;    /* Text inside chat */
+  --color-chat: #b1e4fc;    /* Main chatbot color */
+  --color-input: #000000;   /* Input text color */
 }
 
-.Background {
-  position: fixed;
-  background: radial-gradient(
-    71.43% 62.3% at 46.43% 36.43%,
-    rgba(18, 229, 229, 0) 15%,
-    rgba(239, 155, 255, 0.3) 56.35%,
-    #ff6448 100%
-  );
-  box-shadow: 0px 12.93px 28.74px 0px #ffd28db2 inset;
-  border-radius: 50%;
-  width: 200vw;
-  height: 200vw;
-  top: -60vw;
-  left: -14.27vw;
-  transform: rotate(15.25deg);
-}
-
+/* General App */
 .App {
   position: relative;
   min-height: 100vh;
@@ -27,93 +13,85 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: var(--color-bg);
 }
 
-text {
-  color: var(--color-text);
-}
-
-.Banner {
-  flex: 5;
+/* Chat container */
+.chat-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 95vh;
+  background-color: var(--color-chat);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  padding: 16px;
   z-index: 100;
 }
 
-.Logo {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* Messages list */
+.messages {
+  flex: 1;
+  /* overflow-y:auto;  <-- removed because Lynx does not support */
+  padding-right: 8px;
+}
+
+/* Individual messages */
+.message {
+  padding: 8px 12px;
   margin-bottom: 8px;
+  border-radius: 12px;
+  max-width: 70%;
+  color: var(--color-text);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
-.Logo--react {
-  width: 100px;
-  height: 100px;
-  animation: Logo--spin infinite 20s linear;
+.me {
+  background-color: rgba(0, 123, 255, 0.8);
+  align-self: flex-end;
+  color: #fff;
 }
 
-.Logo--lynx {
-  width: 100px;
-  height: 100px;
-  animation: Logo--shake infinite 0.5s ease;
+.bot {
+  background-color: rgba(255, 255, 255, 0.2);
+  align-self: flex-start;
 }
 
-@keyframes Logo--spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes Logo--shake {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.Content {
+/* Input area */
+.input-area {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Send button */
+.send-button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  display: flex;
   justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  z-index: 101;
 }
 
-.Arrow {
-  width: 24px;
-  height: 24px;
-}
-
-.Title {
-  font-size: 36px;
-  font-weight: 700;
-}
-
-.Subtitle {
-  font-style: italic;
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.Description {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.85);
-  margin: 15rpx;
-}
-
-.Hint {
-  font-size: 12px;
-  margin: 5px;
-  color: rgba(255, 255, 255, 0.65);
+.send-button text {
+  color: white;
+  font-weight: bold;
 }
