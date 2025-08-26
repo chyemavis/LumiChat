@@ -1,16 +1,26 @@
-# Local
-.DS_Store
-*.local
-*.log*
+# Node.js
+node_modules/
+npm-debug.log
+.npm/
+.env
 
-# Dist
-node_modules
+# Build artifacts (Frontend - typically in your Lynx app's root)
+# If your build output goes into a 'build' or 'dist' folder, add them here.
+build/
 dist/
 
-# IDE
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Lynx specific files
+# Add any other Lynx-specific generated files or directories that shouldn't be committed
+# For example, if Lynx creates a 'temp' or 'cache' folder
+.lynx_cache/
+.lynx_temp/
 
-# Env
-.env
+# Editor specific files
+.vscode/        # VS Code settings
+.idea/          # IntelliJ/WebStorm
+*.swp           # Vim swap files
+*.bak           # Backup files
+
+# Operating System Files
+.DS_Store       # macOS
+Thumbs.db       # Windows
