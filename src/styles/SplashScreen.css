@@ -30,11 +30,14 @@
 }
 
 .splash-title {
-  font-size: 60px; /* or any size you want */
+  display: block;
+  text-align: center;
+  margin-left:20px;
+  font-size:50px; /* or any size you want */
   font-weight: bold;
   margin-bottom: 24px;
-    color: pink;
-    font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
+  color: pink;
+  font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
 }
 
 .splash-subtitle {
