@@ -1,7 +1,9 @@
 import express from "express";
-import fetch from "node-fetch";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import cors from "cors";
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
 
 dotenv.config();
 
@@ -9,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 
 // Middleware to log all incoming requests and responses
@@ -43,11 +46,27 @@ app.get("/api/health", (req, res) => {
 });
 
 // Chat Endpoint
-app.post("/api/chat", (req, res) => {
-  console.log("Incoming request body:", req.body);
+app.post("/api/chat", async (req, res) => {
+  try {
+    console.log("Incoming request body:", req.body);
+    
+    const { message } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
 
-  // Return a minimal hardcoded JSON response
-  res.json({ reply: "Hello from the backend!" });
+    // Generate response using AI SDK
+    const { text } = await generateText({
+      model: openai('gpt-3.5-turbo'),
+      prompt: message,
+    });
+
+    res.json({ reply: text });
+  } catch (error) {
+    console.error("Error generating response:", error);
+    res.status(500).json({ error: "Failed to generate response" });
+  }
 });
 
 // Start Server

@@ -10,7 +10,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.22",
     "@lynx-js/react": "^0.112.4",
+    "ai": "^5.0.26",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
