@@ -1,0 +1,238 @@
+/* Pastel pink theme */
+:root {
+/* Force white background for welcome screen */
+.welcome-screen, .welcome-screen * {
+  background: #fff;
+  box-shadow: none;
+}
+html, body {
+  background: #fff;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+  --color-bg: #ffe4ec;
+  --color-chat: #fff0f6;
+  --color-primary: #ffb6c1;
+  --color-secondary: #ffe4ec;
+  --color-input: #c2185b;
+  --color-text: #c2185b;
+}
+
+/* Chat container - Full screen for chat mode */
+.chat-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  /* Removed border-radius, max-width, margin, and height constraints for full screen */
+}
+
+/* Chat header */
+.chat-header {
+  padding: 20px;
+  background: #fff;
+  color: #c2185b;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Removed border-radius for full screen */
+}
+
+.chat-header text {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Messages container - Lynx compatible */
+.messages-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow shrinking */
+}
+
+/* Messages list - Lynx compatible scrolling */
+.messages {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0; /* Allow content to determine height */
+}
+
+/* Individual messages - Lynx compatible styling */
+.message {
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 85%;
+  line-height: 1.4;
+  /* Removed word-wrap for Lynx compatibility */
+}
+
+/* User messages */
+.me {
+  background: #ffd1dc;
+  color: #c2185b;
+  align-self: flex-end;
+  margin-left: auto;
+  border-bottom-right-radius: 6px;
+  border: 1px solid #ffb6c1;
+}
+
+/* Bot messages */
+.bot {
+  background-color: #fff0f6;
+  color: #c2185b;
+  align-self: flex-start;
+  margin-right: auto;
+  border-bottom-left-radius: 6px;
+  border: 1px solid #ffb6c1;
+}
+
+/* Avatar Styles */
+.header-avatar {
+  margin-right: 15px;
+}
+
+.avatar-xlarge {
+  font-size: 120px;
+}
+
+.avatar-small {
+  font-size: 32px;
+}
+
+.avatar-tiny {
+  font-size: 24px;
+}
+
+/* Avatar container and name styling */
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-name {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Message wrapper for avatar layout */
+.message-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  background: none;
+  border: none;
+}
+
+.message-wrapper.me {
+  flex-direction: row-reverse;
+  background: none;
+  border: none;
+}
+
+.message-wrapper.bot {
+  flex-direction: row;
+  background: none;
+  border: none;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+
+/* Input area - Fixed at bottom */
+.input-area {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 20px;
+  background-color: #ffe4ec;
+  border-top: 1px solid #ffb6c1;
+  /* Removed border-radius for full screen */
+}
+
+/* Input field - Lynx compatible */
+input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 24px;
+  border: 2px solid #e0e0e0;
+  outline: none;
+  font-size: 16px;
+  background-color: #ffffff;
+  color: var(--color-input);
+  /* Remove transition for Lynx compatibility */
+}
+
+input:focus {
+  border-color: var(--color-primary);
+}
+
+input::placeholder {
+  color: #999;
+}
+
+/* Send button - Lynx compatible styling */
+.send-button {
+  background: linear-gradient(135deg, #ffb6c1, #ffe4ec);
+  color: #c2185b;
+  padding: 12px 20px;
+  border-radius: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  /* Remove transitions and box-shadow for Lynx compatibility */
+}
+
+.send-button text {
+  color: #c2185b;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Loading state - simplified for Lynx */
+.send-button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .chat-container {
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}

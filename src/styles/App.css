@@ -1,0 +1,51 @@
+:root {
+  --color-bg: #ffe4ec;      /* Pastel pink background */
+  --color-text: #c2185b;    /* Dark pink text for readability */
+  --color-chat: #fff0f6;    /* Very light pink chat background */
+  --color-input: #c2185b;   /* Input text color */
+  --color-primary: #ffb6c1; /* Light pink */
+  --color-secondary: #ffe4ec; /* Lighter pink */
+}
+
+/* Remove default margins and ensure full height - Lynx compatible */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* General App - Full screen with no white space */
+.App {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding: 20px;
+}
+
+/* Chat mode - Remove background and padding for full screen chat */
+.App.chat-mode {
+  background: none;
+  padding: 0;
+}
+
+/* Splash and Welcome screens - Full height with centered content */
+.splash-screen, .welcome-screen {
+  min-height: 100vh;
+  background: #fff;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}

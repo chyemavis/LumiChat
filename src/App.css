@@ -32,6 +32,104 @@ html, body {
   padding: 20px;
 }
 
+/* Splash Screen Styles */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.splash-content {
+  text-align: center;
+  color: white;
+}
+
+.splash-avatar {
+  margin-bottom: 30px;
+}
+
+.avatar-placeholder {
+  font-size: 120px;
+  display: block;
+}
+
+.splash-title {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.splash-subtitle {
+  font-size: 24px;
+  margin-bottom: 40px;
+  opacity: 0.9;
+  display: block;
+}
+
+.splash-button {
+  background: white;
+  color: var(--color-primary);
+  padding: 15px 30px;
+  border-radius: 25px;
+  cursor: pointer;
+  display: block;
+  font-weight: bold;
+  font-size: 18px;
+  margin: 0 auto;
+  text-align: center;
+  width: 200px;
+}
+
+/* Avatar Styles */
+.header-avatar {
+  margin-right: 15px;
+}
+
+.avatar-small {
+  font-size: 32px;
+}
+
+.avatar-tiny {
+  font-size: 24px;
+}
+
+/* Message wrapper for avatar layout */
+.message-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.message-wrapper.me {
+  flex-direction: row-reverse;
+}
+
+.message-wrapper.bot {
+  flex-direction: row;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+
 /* Chat container - Lynx compatible */
 .chat-container {
   flex: 1;
@@ -52,6 +150,9 @@ html, body {
   color: white;
   text-align: center;
   border-radius: 16px 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-header text {

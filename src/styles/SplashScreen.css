@@ -1,0 +1,75 @@
+/* Splash Screen Styles */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  cursor: pointer;
+}
+
+.splash-content {
+  text-align: center;
+  color: white;
+  animation: fadeIn 1s ease-out;
+}
+
+.splash-avatar {
+  margin-bottom: 30px;
+}
+
+.avatar-placeholder {
+  font-size: 120px;
+  display: block;
+}
+
+.splash-title {
+  font-size: 60px; /* or any size you want */
+  font-weight: bold;
+  margin-bottom: 24px;
+    color: pink;
+    font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
+}
+
+.splash-subtitle {
+  font-size: 20px;
+  margin-bottom: 20px;
+  opacity: 0.9;
+  display: block;
+  font-weight: 300;
+}
+
+.splash-hint {
+  font-size: 16px;
+  opacity: 0.7;
+  display: block;
+  font-style: italic;
+  animation: pulse 2s infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Avatar name styling for splash */
+.splash-avatar .avatar-name {
+  font-size: 32px;
+  color: white;
+  font-weight: bold;
+  margin-top: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: block;
+}
