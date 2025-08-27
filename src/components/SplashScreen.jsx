@@ -3,6 +3,14 @@ import welcomeImg from "../assets/test.png";
 import "../styles/SplashScreen.css";
 
 export default function SplashScreen({ onNext }) {
+  // Auto-advance after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onNext();
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [onNext]);
 
   const handleTap = () => {
     onNext();
