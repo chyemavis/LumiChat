@@ -1,97 +1,180 @@
 :root {
-  --color-bg: #ffffff;      /* Background outside chat */
-  --color-text: #ffffff;    /* Text inside chat */
-  --color-chat: #b1e4fc;    /* Main chatbot color */
+  --color-bg: #f0f2f5;      /* Light background */
+  --color-text: #333333;    /* Dark text for readability */
+  --color-chat: #ffffff;    /* White chat background */
   --color-input: #000000;   /* Input text color */
+  --color-primary: #007bff; /* Primary blue */
+  --color-secondary: #e3f2fd; /* Light blue */
 }
 
-/* General App */
+/* Remove default margins and ensure full height - Lynx compatible */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* General App - Full screen with no white space */
 .App {
-  position: relative;
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-bg);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
 }
 
-/* Chat container */
+/* Chat container - Lynx compatible */
 .chat-container {
-  position: relative;
+  flex: 1;
   width: 100%;
-  max-width: 600px;
-  height: 95vh;
+  max-width: 800px;
+  margin: 0 auto;
   background-color: var(--color-chat);
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  z-index: 100;
+  /* Removed overflow and box-shadow for Lynx compatibility */
 }
 
-/* Messages list */
+/* Chat header */
+.chat-header {
+  padding: 20px;
+  background: linear-gradient(90deg, var(--color-primary), #0056b3);
+  color: white;
+  text-align: center;
+  border-radius: 16px 16px 0 0;
+}
+
+.chat-header text {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Messages container - Lynx compatible */
+.messages-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Messages list - Lynx compatible scrolling */
 .messages {
   flex: 1;
-  /* overflow-y:auto;  <-- removed because Lynx does not support */
-  padding-right: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Remove unsupported properties for Lynx */
 }
 
-/* Individual messages */
+/* Remove custom scrollbar styles for Lynx compatibility */
+
+/* Individual messages - Lynx compatible styling */
 .message {
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  border-radius: 12px;
-  max-width: 70%;
-  color: var(--color-text);
-  background-color: rgba(255, 255, 255, 0.2);
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 75%;
+  line-height: 1.4;
+  /* Removed word-wrap for Lynx compatibility */
 }
 
+/* User messages */
 .me {
-  background-color: rgba(0, 123, 255, 0.8);
+  background: linear-gradient(135deg, var(--color-primary), #0056b3);
+  color: white;
   align-self: flex-end;
-  color: #fff;
+  margin-left: auto;
+  border-bottom-right-radius: 6px;
 }
 
+/* Bot messages */
 .bot {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--color-secondary);
+  color: var(--color-text);
   align-self: flex-start;
+  margin-right: auto;
+  border-bottom-left-radius: 6px;
+  border: 1px solid #e0e0e0;
 }
 
-/* Input area */
+/* Input area - Fixed at bottom */
 .input-area {
   display: flex;
   flex-direction: row;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 12px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 0 0 16px 16px;
+  border-top: 1px solid #e0e0e0;
 }
 
+/* Input field - Lynx compatible */
 input {
   flex: 1;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
+  padding: 12px 16px;
+  border-radius: 24px;
+  border: 2px solid #e0e0e0;
   outline: none;
   font-size: 16px;
   background-color: #ffffff;
-  color: #000000;
+  color: var(--color-input);
+  /* Remove transition for Lynx compatibility */
 }
 
-/* Send button */
+input:focus {
+  border-color: var(--color-primary);
+}
+
+input::placeholder {
+  color: #999;
+}
+
+/* Send button - Lynx compatible styling */
 .send-button {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--color-primary), #0056b3);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   flex-shrink: 0;
-  z-index: 101;
+  /* Remove transitions and box-shadow for Lynx compatibility */
 }
 
 .send-button text {
   color: white;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Loading state - simplified for Lynx */
+.send-button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .App {
+    padding: 10px;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
 }
