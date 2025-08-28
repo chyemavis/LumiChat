@@ -1,4 +1,4 @@
-import { view, text, image } from "@lynx-js/react"; // Add image import
+import { view, text, image } from "@lynx-js/react";
 import "../styles/WelcomeScreen.css";
 import welcomeImage from "../assets/welcome.png";
 
@@ -17,13 +17,17 @@ export default function WelcomeScreen({ onContinue }) {
         <view className="welcome-button" bindtap={onContinue}>
           <text>Get Started</text>
         </view>
-        <view className="welcome-bunny-container">
-          <image 
-            src={welcomeImage}
-            className="welcome-bunny" 
-            mode="aspectFit"
-          />
-        </view>
+      </view>
+      
+      {/* Move bunny container outside welcome-content */}
+      <view className="welcome-bunny-container">
+        <image 
+          src={welcomeImage}
+          className="welcome-bunny" 
+          mode="aspectFit"
+          width="300"
+          height="300"
+        />
       </view>
     </view>
   );
