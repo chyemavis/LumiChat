@@ -9,9 +9,9 @@ export default function WelcomeScreen({ onContinue }) {
         <text className="app-name">Lumi</text>
         
         <view className="welcome-messages">
-          <text className="welcome-text">Hello! Welcome To</text>
+          <text className="welcome-text">Hello! Welcome to</text>
           <text className="welcome-text">Lumi, your personal</text>
-          <text className="welcome-text">mindful companion</text>
+          <text className="welcome-text">mindful companion!</text>
         </view>
 
         <view className="button-container">

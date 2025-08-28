@@ -5,8 +5,10 @@ import "../styles/AuthScreen.css";
 export default function AuthScreen({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = () => {
     if (isLogin) {
@@ -16,8 +18,13 @@ export default function AuthScreen({ onLogin }) {
       }
     } else {
       // Handle signup
-      if (username.trim() && password.trim() && email.trim()) {
-        onLogin({ username, email, type: 'signup' });
+      if (fullName.trim() && email.trim() && password.trim() && confirmPassword.trim()) {
+        if (password !== confirmPassword) {
+          // You might want to add proper error handling here
+          alert("Passwords don't match");
+          return;
+        }
+        onLogin({ username: fullName, email, type: 'signup' });
       }
     }
   };
@@ -26,8 +33,10 @@ export default function AuthScreen({ onLogin }) {
     setIsLogin(!isLogin);
     // Clear form when switching
     setUsername("");
-    setPassword("");
+    setFullName("");
     setEmail("");
+    setPassword("");
+    setConfirmPassword("");
   };
 
   return (
@@ -44,46 +53,92 @@ export default function AuthScreen({ onLogin }) {
         </view>
 
         <view className="auth-form">
-          {!isLogin && (
-            <view className="input-group">
-              <text className="input-label">Email:</text>
-              <input
-                value={email}
-                bindinput={(e) => {
-                  const newValue = e.detail?.value || e.target?.value || "";
-                  setEmail(newValue);
-                }}
-                placeholder="Enter your email"
-                className="auth-input"
-              />
-            </view>
+          {isLogin ? (
+            <>
+              <view className="input-group">
+                <text className="input-label">Email:</text>
+                <input
+                  value={username}
+                  bindinput={(e) => {
+                    const newValue = e.detail?.value || e.target?.value || "";
+                    setUsername(newValue);
+                  }}
+                  placeholder="Enter your email"
+                  className="auth-input"
+                />
+              </view>
+
+              <view className="input-group">
+                <text className="input-label">Password:</text>
+                <input
+                  value={password}
+                  type="password"
+                  bindinput={(e) => {
+                    const newValue = e.detail?.value || e.target?.value || "";
+                    setPassword(newValue);
+                  }}
+                  placeholder="Enter your password"
+                  className="auth-input"
+                />
+              </view>
+            </>
+          ) : (
+            <>
+              <view className="input-group">
+                <text className="input-label">Full Name:</text>
+                <input
+                  value={fullName}
+                  bindinput={(e) => {
+                    const newValue = e.detail?.value || e.target?.value || "";
+                    setFullName(newValue);
+                  }}
+                  placeholder="Enter your full name"
+                  className="auth-input"
+                />
+              </view>
+
+              <view className="input-group">
+                <text className="input-label">Email:</text>
+                <input
+                  value={email}
+                  bindinput={(e) => {
+                    const newValue = e.detail?.value || e.target?.value || "";
+                    setEmail(newValue);
+                  }}
+                  placeholder="Enter your email"
+                  className="auth-input"
+                />
+              </view>
+
+              <view className="input-group">
+                <text className="input-label">Password:</text>
+                <input
+                  value={password}
+                  type="password"
+                  bindinput={(e) => {
+                    const newValue = e.detail?.value || e.target?.value || "";
+                    setPassword(newValue);
+                  }}
+                  placeholder="Enter your password"
+                  className="auth-input"
+                />
+              </view>
+
+              <view className="input-group">
+                <text className="input-label">Confirm Password:</text>
+                <input
+                  value={confirmPassword}
+                  type="password"
+                  bindinput={(e) => {
+                    const newValue = e.detail?.value || e.target?.value || "";
+                    setConfirmPassword(newValue);
+                  }}
+                  placeholder="Confirm your password"
+                  className="auth-input"
+                />
+              </view>
+            </>
           )}
-
-          <view className="input-group">
-            <text className="input-label">Email:</text>
-            <input
-              value={username}
-              bindinput={(e) => {
-                const newValue = e.detail?.value || e.target?.value || "";
-                setUsername(newValue);
-              }}
-              placeholder="Enter your email"
-              className="auth-input"
-            />
-          </view>
-
-          <view className="input-group">
-            <text className="input-label">Password:</text>
-            <input
-              value={password}
-              bindinput={(e) => {
-                const newValue = e.detail?.value || e.target?.value || "";
-                setPassword(newValue);
-              }}
-              placeholder="Enter your password"
-              className="auth-input"
-            />
-          </view>
 
           <view className="auth-button" bindtap={handleSubmit}>
             <text>{isLogin ? "Log In" : "Create Account"}</text>
