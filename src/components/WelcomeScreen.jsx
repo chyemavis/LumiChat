@@ -1,6 +1,9 @@
+
+
 import { view, text, image } from "@lynx-js/react";
 import "../styles/WelcomeScreen.css";
 import welcomeImage from "../assets/welcome.png";
+
 
 export default function WelcomeScreen({ onContinue }) {
   return (
@@ -13,7 +16,6 @@ export default function WelcomeScreen({ onContinue }) {
           <text className="welcome-text">Lumi, your personal</text>
           <text className="welcome-text">mindful companion!</text>
         </view>
-
         <view className="button-container">
           <view
             className="get-started-btn"
@@ -35,7 +37,7 @@ export default function WelcomeScreen({ onContinue }) {
               backgroundColor: '#eaa7ad'
             }}
           >
-            <text style={{ 
+            <text style={{
               color: '#333333',
               fontWeight: '500',
               fontSize: '1.5rem',
@@ -45,6 +47,7 @@ export default function WelcomeScreen({ onContinue }) {
           </view>
         </view>
       </view>
+
 
       <view className="welcome-bunny-container">
         <image
