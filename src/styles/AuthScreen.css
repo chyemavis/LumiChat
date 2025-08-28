@@ -106,7 +106,7 @@
   color: #c2185b;
   cursor: pointer;
   font-weight: 600;
-  display: inline;
+  display: block;
 }
 
 /* Responsive design */
