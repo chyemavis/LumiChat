@@ -20,7 +20,7 @@ export default function WelcomeScreen({ onContinue }) {
             hover-class="get-started-btn-hover"
             bindtap={onContinue}
             style={{
-              background: '#FFD1EA',
+              background: '#eaa7ad',
               borderRadius: '30px',
               padding: '1.2rem 3rem',
               display: 'flex',
@@ -32,7 +32,7 @@ export default function WelcomeScreen({ onContinue }) {
               height: '55px',
               backdropFilter: 'blur(0)',
               WebkitBackdropFilter: 'blur(0)',
-              backgroundColor: '#ffc0cb'
+              backgroundColor: '#eaa7ad'
             }}
           >
             <text style={{ 

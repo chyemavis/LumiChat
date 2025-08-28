@@ -9,7 +9,7 @@
   height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background: #fff;
   padding: 20px;
 }
@@ -74,33 +74,45 @@
 
 .auth-button {
   width: 100%;
-  background: linear-gradient(135deg, var(--color-primary), #0056b3);
-  color: white;
+  background: #eaa7ad;
+  color: #333333;
   padding: 15px;
   border-radius: 12px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
+  font-weight: 900;
+  font-size: 28px;
   margin: 25px 0 20px 0;
+  transition: opacity 0.2s ease;
+}
+
+.auth-button:hover {
+  opacity: 0.9;
 }
 
 .auth-switch {
   text-align: center;
   font-size: 14px;
   color: #666;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
 }
 
 .auth-link {
-  color: var(--color-primary);
+  color: #c2185b;
   cursor: pointer;
   font-weight: 600;
+  display: inline;
 }
 
 /* Responsive design */
 @media (max-width: 480px) {
   .auth-content {
-    padding: 30px 20px;
+    padding: 10px 10px;
     margin: 0 10px;
   }
   

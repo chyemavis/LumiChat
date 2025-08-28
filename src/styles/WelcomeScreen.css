@@ -1,25 +1,4 @@
-/* Welcome Screen Styles */
-html, body {
-  height: 100%;
-  background: #fff;
-  margin: 0;
-  padding: 0;
-}
-.welcome-screen {
-  min-height: 100vh;
-  background: #fff;
-  display: flex;
-<<<<<<< HEAD
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  background: #FFECF2;
-  padding: 1rem;
-  padding-top: 0;
-  position: relative;
-}
-
-.welcome-content {
+.welcome-scre.welcome-content {
   margin-top: 0;
   align-items: center;
   padding-bottom: 80px;
@@ -29,12 +8,25 @@ html, body {
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  gap: 5rem;  /* increased gap between Lumi and welcome message */
+  gap: 2.5rem;  /* reduced gap between elements */
+}
+
+.welcome-content {
+  margin-top: 0;
+  align-items: center;
+  padding-bottom: 50px;
+  position: absolute;   /* pin to top */
+  top: 4rem;            /* control spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;  /* reduced gap between elements */
 }
 
 .app-name {
   font-size: 5rem;
-  color: #FFC0CB; 
+  color: #c2185b;
   font-weight: 700;
   margin-bottom: 0;
   font-family: 'Nunito', 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
@@ -42,16 +34,16 @@ html, body {
 }
 
 .welcome-messages {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
   align-items: center;
 }
 
 .welcome-text {
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   color: #333333;
   display: block;
   line-height: 1.2;
@@ -72,7 +64,7 @@ html, body {
 }
 
 .get-started-btn {
-  background: #FFD1EA;
+  background: #eaa7ad;
   border-radius: 50px;
   padding: 1.2rem 3rem;
   display: flex;
@@ -96,90 +88,24 @@ html, body {
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 250px;
-  height: 250px;
+  width: 300px;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
-=======
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  text-align: center;
 }
 
-.welcome-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
-  max-width: 400px;
+.welcome-bunny {
   width: 100%;
-  animation: fadeInUp 0.8s ease-out;
+  height: 100%;
+  animation: float 3s ease-in-out infinite;
 }
 
-.welcome-avatar {
-  margin-bottom: 10px;
-}
-
-.welcome-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  text-align: center;
-}
-
-.welcome-title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: bold;
-  color: #c2185b;
-  margin-bottom: 10px;
-}
-
-.welcome-description {
-  font-size: 16px;
-  color: #c2185b;
-  line-height: 1.5;
-  text-align: center;
-}
-
-.welcome-sub {
-  font-size: 14px;
-  color: #c2185b;
-  font-style: italic;
-}
-
-.welcome-button {
-  background: #fff;
-  border: 1px solid #ffb6c1;
-  color: #c2185b;
-  padding: 10px 70px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin-top: 10px;
-}
-
-.welcome-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.welcome-button:active {
-  transform: translateY(0);
->>>>>>> 35c6cd58a23f7f5aa7f839669af3f1524a6a6f1c
-}
-
-/* Animations */
-@keyframes fadeInUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -187,14 +113,17 @@ html, body {
   }
 }
 
-/* Avatar name styling for welcome screen */
-.welcome-avatar .avatar-name {
-  font-size: 18px;
-  color: #c2185b;
-  font-weight: 600;
-  margin-top: 8px;
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
-<<<<<<< HEAD
 
 @media (max-width: 768px) {
   .welcome-title {
@@ -214,5 +143,3 @@ html, body {
     font-size: 1.1rem;
   }
 }
-=======
->>>>>>> 35c6cd58a23f7f5aa7f839669af3f1524a6a6f1c

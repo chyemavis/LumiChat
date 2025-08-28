@@ -34,19 +34,19 @@ export default function AuthScreen({ onLogin }) {
     <view className="auth-screen">
       <view className="auth-content">
         <view className="auth-header">
-          <Avatar size="small" />
+          <Avatar size="xlarge" />
           <text className="auth-title">
-            {isLogin ? "Welcome Back!" : "Join LumiChat"}
+            {isLogin ? "Welcome Back!" : "Join Lumi"}
           </text>
           <text className="auth-subtitle">
-            {isLogin ? "Sign in to continue chatting" : "Create your account"}
+            {isLogin ? "Log in to continue chatting" : "Create your account"}
           </text>
         </view>
 
         <view className="auth-form">
           {!isLogin && (
             <view className="input-group">
-              <text className="input-label">Email</text>
+              <text className="input-label">Email:</text>
               <input
                 value={email}
                 bindinput={(e) => {
@@ -60,20 +60,20 @@ export default function AuthScreen({ onLogin }) {
           )}
 
           <view className="input-group">
-            <text className="input-label">Username</text>
+            <text className="input-label">Email:</text>
             <input
               value={username}
               bindinput={(e) => {
                 const newValue = e.detail?.value || e.target?.value || "";
                 setUsername(newValue);
               }}
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               className="auth-input"
             />
           </view>
 
           <view className="input-group">
-            <text className="input-label">Password</text>
+            <text className="input-label">Password:</text>
             <input
               value={password}
               bindinput={(e) => {
@@ -86,13 +86,13 @@ export default function AuthScreen({ onLogin }) {
           </view>
 
           <view className="auth-button" bindtap={handleSubmit}>
-            <text>{isLogin ? "Sign In" : "Create Account"}</text>
+            <text>{isLogin ? "Log In" : "Create Account"}</text>
           </view>
 
           <view className="auth-switch">
             <text>{isLogin ? "Don't have an account? " : "Already have an account? "}</text>
             <text className="auth-link" bindtap={toggleMode}>
-              {isLogin ? "Sign Up" : "Sign In"}
+              {isLogin ? "Sign Up" : "Log In"}
             </text>
           </view>
         </view>
