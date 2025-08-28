@@ -36,19 +36,24 @@ html, body {
 
 /* Chat header */
 .chat-header {
-  padding: 20px;
+  padding: 40px 20px 20px 20px;
   background: #fff;
   color: #c2185b;
-  text-align: center;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  position: relative;
   /* Removed border-radius for full screen */
 }
 
 .chat-header text {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 900;
+  color: pink;
+  font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Messages container - Lynx compatible */
@@ -100,7 +105,9 @@ html, body {
 
 /* Avatar Styles */
 .header-avatar {
-  margin-right: 15px;
+  margin-right: 0;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 .avatar-xlarge {
@@ -133,7 +140,7 @@ html, body {
 .message-wrapper {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 3px;
   margin-bottom: 12px;
   background: none;
   border: none;
@@ -143,12 +150,14 @@ html, body {
   flex-direction: row-reverse;
   background: none;
   border: none;
+  gap: 3px;
 }
 
 .message-wrapper.bot {
   flex-direction: row;
   background: none;
   border: none;
+  gap: 3px;
 }
 
 .message-avatar {
@@ -156,8 +165,8 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background-color: white;
   border-radius: 50%;
   margin-top: 5px;

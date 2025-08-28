@@ -158,9 +158,9 @@ Respond helpfully and intelligently:`;
       {/* Chat header */}
       <view className="chat-header">
         <view className="header-avatar">
-          <Avatar size="small" />
+          <Avatar size="large" />
         </view>
-        <text>{user ? `LumiChat - ${user.username}` : 'LumiChat'}</text>
+        <text>Lumi</text>
       </view>
 
       {/* Messages container with scroll */}
