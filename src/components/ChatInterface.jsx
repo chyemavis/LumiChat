@@ -11,7 +11,7 @@ export default function ChatInterface({ user }) {
   useEffect(() => {
     if (user) {
       const welcomeMessage = {
-        text: `Hello ${user.username}! 🌟 I'm Lumi, your friendly AI assistant! How can I help you today?`,
+        text: `Hello ${user.username}!  I'm Lumi, your friendly AI assistant! What's on your mind today?`,
         user: "bot"
       };
       setMessages([welcomeMessage]);
@@ -160,7 +160,7 @@ Respond helpfully and intelligently:`;
         <view className="header-avatar">
           <Avatar size="large" />
         </view>
-        <text>Lumi</text>
+        <text>Lumi.</text>
       </view>
 
       {/* Messages container with scroll */}
@@ -168,17 +168,17 @@ Respond helpfully and intelligently:`;
         <view className="messages">
           {messages.map((msg, index) => (
             <view key={index} className={msg.user === "me" ? "message-wrapper me" : "message-wrapper bot"}>
-              <text className={msg.user === "me" ? "message me" : "message bot"}>
-                {msg.text}
-              </text>
+              <view className={msg.user === "me" ? "message me" : "message bot"}>
+                <text>{msg.text}</text>
+              </view>
             </view>
           ))}
           {/* Loading indicator when waiting for AI response */}
           {loading && (
             <view className="message-wrapper bot">
-              <text className="message bot">
+              <view className="message bot">
                 <text>🤖 Thinking...</text>
-              </text>
+              </view>
             </view>
           )}
         </view>
@@ -192,7 +192,7 @@ Respond helpfully and intelligently:`;
             const newValue = e.detail?.value || e.target?.value || "";
             setInputValue(newValue);
           }}
-          placeholder="Ask me anything..."
+          placeholder=""
         />
         <view
           className="send-button"
