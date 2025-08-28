@@ -34,7 +34,7 @@
   font-size: 60px; /* or any size you want */
   font-weight: 900;
   margin-bottom: 24px;
-  color: pink;
+  color: #ffc0cb;
   font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
 }
 
@@ -76,3 +76,5 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: block;
 }
+
+
