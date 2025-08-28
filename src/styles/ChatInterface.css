@@ -1,22 +1,24 @@
 /* Pastel pink theme */
 :root {
-/* Force white background for welcome screen */
-.welcome-screen, .welcome-screen * {
-  background: #fff;
-  box-shadow: none;
-}
-html, body {
-  background: #fff;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
   --color-bg: #ffe4ec;
   --color-chat: #fff0f6;
   --color-primary: #ffb6c1;
   --color-secondary: #ffe4ec;
   --color-input: #c2185b;
   --color-text: #c2185b;
+}
+
+/* Force white background for welcome screen */
+.welcome-screen, .welcome-screen * {
+  background: #fff;
+  box-shadow: none;
+}
+
+html, body {
+  background: #fff;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Chat container - Full screen for chat mode */
@@ -28,7 +30,7 @@ html, body {
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #f8e8ec;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   /* Removed border-radius, max-width, margin, and height constraints for full screen */
@@ -37,8 +39,8 @@ html, body {
 /* Chat header */
 .chat-header {
   padding: 40px 20px 20px 20px;
-  background: #f8e8ec;
-  color: #c2185b;
+  background: #ffffff;
+  color: #d4c4cb;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,8 +64,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  padding-bottom: 20px;
+  min-height: 0; /* Allow shrinking */
 }
 
 /* Messages list - Lynx compatible scrolling */
@@ -72,8 +73,8 @@ html, body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  min-height: 0;
+  gap: 12px;
+  min-height: 0; /* Allow content to determine height */
 }
 
 /* Individual messages - Lynx compatible styling */
@@ -92,9 +93,7 @@ html, body {
   align-self: flex-end;
   margin-left: auto;
   border-bottom-right-radius: 6px;
-  border: 1px solid #ffb6c1;
-  max-width: 70%;
-  min-width: 120px;
+  border: 1px solid #ccc9c9;
 }
 
 /* Bot messages */
@@ -104,7 +103,7 @@ html, body {
   align-self: flex-start;
   margin-right: auto;
   border-bottom-left-radius: 6px;
-  border: 1px solid #ffb6c1;
+  border: 1px solid #ccc9c9;
 }
 
 /* Avatar Styles */
@@ -179,8 +178,8 @@ html, body {
   flex-direction: row;
   gap: 12px;
   padding: 20px;
-  background-color: #f8e8ec;
-  border-top: 1px solid #ffb6c1;
+  background-color: #ffffff;
+  border-top: 1px solid #fffcfc;
   /* Removed border-radius for full screen */
 }
 
@@ -189,7 +188,7 @@ html, body {
   flex: 1;
   padding: 12px 16px;
   border-radius: 24px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #fdd8de;
   outline: none;
   font-size: 16px;
   background-color: #ffffff !important;
@@ -207,7 +206,7 @@ html, body {
 
 /* Send button - Lynx compatible styling */
 .send-button {
-  background: #ffb6c1;
+  background: #fdd8de;
   color: #666666;
   padding: 12px 20px;
   border-radius: 24px;
@@ -223,7 +222,7 @@ html, body {
 .send-button text {
   color: #e36868;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 /* Loading state - simplified for Lynx */
@@ -246,4 +245,116 @@ html, body {
   .input-area input {
     font-size: 16px; /* Prevent zoom on iOS */
   }
+}
+
+/* Header buttons */
+.header-buttons {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.header-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: #fdd8de;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #ffb6c1;
+  position: relative;
+}
+
+.header-button text {
+  color: #c2185b;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 0;
+}
+
+/* Popup styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  margin: 20px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.popup-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #c2185b;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.popup-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  display: block;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.popup-button {
+  padding: 12px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+.popup-button.cancel {
+  background: #f5f5f5;
+  border: 2px solid #ddd;
+}
+
+.popup-button.cancel text {
+  color: #666;
+  font-weight: 600;
+}
+
+.popup-button.confirm {
+  background: #fdd8de;
+  border: 2px solid #ffb6c1;
+}
+
+.popup-button.confirm text {
+  color: #c2185b;
+  font-weight: 600;
 }
