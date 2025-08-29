@@ -76,7 +76,7 @@ html, body {
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
-		overflow-y: auto;
+		overflow: scroll;
 	min-height: 0;
 }
 
@@ -87,7 +87,6 @@ html, body {
 	max-width: 80%;
 	line-height: 1.5;
 	margin-bottom: 2px;
-	word-break: break-word;
 }
 
 /* User messages */
