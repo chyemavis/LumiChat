@@ -1,4 +1,4 @@
-import { useState, view, text, input, useEffect } from "@lynx-js/react";
+import { useState, view, text, input, useEffect, useRef } from "@lynx-js/react";
 import Avatar from "./Avatar.jsx";
 import DiaryMode from "./DiaryMode.jsx";
 import "../styles/ChatInterface.css";
@@ -9,9 +9,7 @@ export default function ChatInterface({ user }) {
   const [loading, setLoading] = useState(false);
   const [showDiaryPopup, setShowDiaryPopup] = useState(false);
   const [isDiaryMode, setIsDiaryMode] = useState(false);
-
-
-  // If in diary mode, render DiaryMode component
+  // No longer need messagesEndRef as we're using direct scroll  // If in diary mode, render DiaryMode component
   if (isDiaryMode) {
     return (
       <DiaryMode 
@@ -32,22 +30,30 @@ export default function ChatInterface({ user }) {
     }
   }, [user]);
 
+  // Auto-scroll to the bottom when new messages are added
+  const scrollViewRef = useRef(null);
 
-
-  // Enhanced AI integration with better context and capabilities
+  useEffect(() => {
+    const scrollView = scrollViewRef.current;
+    if (scrollView && scrollView.scrollTo) {
+      // Use Lynx's scroll-view scrollTo method
+      const scrollHeight = Array.from(scrollView.children).reduce((height, child) => height + child.offsetHeight, 0);
+      scrollView.scrollTo(0, scrollHeight);
+    }
+  }, [messages]);  // Enhanced AI integration with better context and capabilities
   const sendMessage = async (newMessages) => {
     setLoading(true);
     try {
       // Get the last user message
       const lastUserMessage = newMessages.filter(m => m.user === "me").pop();
       const userMessage = lastUserMessage ? lastUserMessage.text : "";
-
+     
       // Build conversation context for AI
       const conversationHistory = newMessages
         .slice(-6) // Last 6 messages for context
         .map(msg => `${msg.user === "me" ? "User" : "Assistant"}: ${msg.text}`)
         .join('\n');
-
+     
       // Enhanced prompt with better instructions and capabilities
       const prompt = `You are LumiChat, an advanced AI assistant with specialized knowledge and helpful capabilities. You are engaging, intelligent, and provide practical solutions.
 
@@ -77,13 +83,25 @@ INSTRUCTIONS:
 
 Respond helpfully and intelligently:`;
 
-      // Call backend Gemini proxy endpoint (use full URL for local dev)
-      const response = await fetch('http://localhost:3001/api/gemini', {
+      // Call Gemini API directly with enhanced prompt
+      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAGptA81rmXeLLSG2jPlOFImQ31gfCI_5A", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.8, // Higher creativity
+            maxOutputTokens: 400, // Longer responses
+            topP: 0.9,
+            topK: 40
+          }
+        })
       });
 
       if (!response.ok) {
@@ -91,20 +109,20 @@ Respond helpfully and intelligently:`;
       }
 
       const data = await response.json();
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, but I'm having trouble generating a response right now.";
-
+      const aiResponse = data.candidates[0]?.content?.parts[0]?.text || "I apologize, but I'm having trouble generating a response right now.";
+     
       setMessages([...newMessages, { text: aiResponse, user: "bot" }]);
     } catch (error) {
       console.error("AI Error:", error);
-
+      
       if (error.message.includes('429')) {
         // Rate limit - use smart fallback responses
         const smartResponse = generateSmartResponse(userMessage);
         setMessages([...newMessages, { text: smartResponse, user: "bot" }]);
       } else {
         // Other errors - show debug info
-        const errorMessage = `API Error: ${error.message} | Status: ${error.status || 'none'}`;
-        setMessages([...newMessages, { text: errorMessage, user: "bot" }]);
+  const errorMessage = `API Error: ${error.message} | Status: ${error.status || 'none'}`;
+  setMessages([...newMessages, { text: errorMessage, user: "bot" }]);
       }
     } finally {
       setLoading(false);
@@ -248,11 +266,7 @@ Respond helpfully and intelligently:`;
 
 
   return (
-    <view className="chat-container" style={{
-      display: "flex",
-      flexDirection: "column",
-      height: "100vh"
-    }}>
+    <view className="chat-container">
       {/* Mood Diary Popup */}
       {showDiaryPopup && (
         <view className="popup-overlay" bindtap={() => setShowDiaryPopup(false)}>
@@ -292,87 +306,47 @@ Respond helpfully and intelligently:`;
 
 
       {/* Messages container with scroll-view */}
-      <view className="messages-container" style={{ flex: 1, minHeight: 0 }}>
+      <view className="messages-container">
         <scroll-view
+          ref={scrollViewRef}
+          scroll-orientation="vertical"
           scroll-y={true}
-          scroll-into-view="messagesEnd"
-          style={{
-            flex: 1,
-            width: "100%",
-            minHeight: 0,
-            padding: "20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px"
-          }}
+          style={{ flex: 1, width: "100%" }}
           className="messages"
         >
           {messages.map((msg, index) => (
             <view key={index} className={msg.user === "me" ? "message-wrapper me" : "message-wrapper bot"}>
-              <view
-                className={msg.user === "me" ? "message me" : "message bot"}
-                style={{
-                  maxWidth: "80%",
-                  wordBreak: "break-word",
-                  whiteSpace: "pre-wrap",
-                  padding: "12px 16px",
-                  borderRadius: 18,
-                  lineHeight: 1.5,
-                  marginBottom: "2px",
-                  alignSelf: msg.user === "me" ? "flex-end" : "flex-start",
-                  background: msg.user === "me" ? "#ff9bb3" : "#fff",
-                  color: msg.user === "me" ? "#fff" : "#000"
-                }}
-              >
+              <view className={msg.user === "me" ? "message me" : "message bot"}>
                 <text>{msg.text}</text>
               </view>
-              {index === messages.length - 1 && <view id="messagesEnd" />}
             </view>
           ))}
+          {/* Loading indicator when waiting for AI response */}
           {loading && (
             <view className="message-wrapper bot">
-              <view className="message bot" style={{
-                  maxWidth: "80%",
-                  padding: "12px 16px",
-                  borderRadius: 18,
-                  lineHeight: 1.5,
-                  marginBottom: "2px",
-                  alignSelf: "flex-start",
-                  background: "#fff",
-                  color: "#000",
-                  wordBreak: "break-word",
-                  whiteSpace: "pre-wrap"
-                }}>
+              <view className="message bot">
                 <text>🤖 Thinking...</text>
               </view>
             </view>
           )}
         </scroll-view>
       </view>
-
-
       {/* Input area fixed at bottom */}
-      <view className="input-area" style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        padding: "12px",
-        borderTop: "1px solid #ddd"
-      }}>
+      <view className="input-area">
         <input
           value={inputValue}
-          bindinput={(e) => setInputValue(e.detail?.value || e.target?.value || "")}
-          style={{ flex: 1, padding: "10px" }}
-          placeholder="Type a message..."
+          bindinput={(e) => {
+            const newValue = e.detail?.value || e.target?.value || "";
+            setInputValue(newValue);
+          }}
+          placeholder=""
         />
         <view
           className="send-button"
-          bindtap={handleSend}
-          style={{
-            marginLeft: "10px",
-            opacity: loading ? 0.5 : 1,
-            cursor: loading ? "not-allowed" : "pointer"
+          bindtap={() => {
+            handleSend();
           }}
+          style={loading ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
         >
           <text>{loading ? "..." : "Send"}</text>
         </view>
