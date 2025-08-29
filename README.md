@@ -39,6 +39,25 @@ git clone https://github.com/chyemavis/LumiChat.git
 cd LumiChat
 ```
 
+2. Set up the backend:
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+3. Configure your API keys in `backend/.env`:
+   - Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+   - Replace `YOUR_GEMINI_API_KEY_HERE` with your actual API key
+
+4. Install frontend dependencies:
+
+```bash
+cd ..
+npm install
+```
+
 2. Install frontend dependencies:
 
 ```bash
