@@ -10,6 +10,7 @@ export default function ChatInterface({ user }) {
   const [showDiaryPopup, setShowDiaryPopup] = useState(false);
   const [isDiaryMode, setIsDiaryMode] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(""); // Add debug info state
   
   // Refs for cleanup
   const abortControllerRef = useRef(null);
@@ -60,6 +61,8 @@ export default function ChatInterface({ user }) {
 
   // Enhanced sendMessage with better error handling and timeout
   const sendMessage = async (newMessages) => {
+    console.log("🚀 Starting sendMessage with:", newMessages);
+    setDebugInfo("🚀 Starting request...");
     setLoading(true);
     setConnectionError(false);
     
@@ -80,35 +83,6 @@ export default function ChatInterface({ user }) {
         .slice(-6) // Last 6 messages for context
         .map(msg => `${msg.user === "me" ? "User" : "Assistant"}: ${msg.text}`)
         .join('\n');
-     
-      // Enhanced prompt with better instructions and capabilities
-      const prompt = `You are LumiChat, an advanced AI assistant with specialized knowledge and helpful capabilities. You are engaging, intelligent, and provide practical solutions.
-
-PERSONALITY: Friendly, knowledgeable, and solution-oriented. You don't just suggest "search online" - you provide actual helpful information and creative alternatives.
-
-CAPABILITIES:
-- Weather: Instead of saying "check online", provide weather-related advice, seasonal tips, outfit suggestions, or ask about their location for context
-- Coding: Give specific code examples, debugging steps, and best practices
-- Learning: Recommend specific resources, learning paths, and practical exercises
-- Creative tasks: Brainstorm ideas, provide frameworks, and suggest approaches
-- Problem-solving: Break down complex issues into actionable steps
-
-CURRENT DATE: August 28, 2025
-
-CONVERSATION CONTEXT:
-${conversationHistory}
-
-USER'S LATEST MESSAGE: "${userMessage}"
-
-INSTRUCTIONS:
-- Be specific and actionable rather than generic
-- If you can't access real-time data, provide relevant knowledge, tips, or alternatives
-- Ask follow-up questions to better understand their needs
-- Give examples and practical suggestions
-- Keep responses conversational but informative (2-4 sentences)
-- Show personality and engagement
-
-Respond helpfully and intelligently:`;
 
       // Create timeout promise
       const timeoutPromise = new Promise((_, reject) => {
@@ -116,25 +90,34 @@ Respond helpfully and intelligently:`;
       });
 
       // Call our secure backend endpoint
-      const fetchPromise = fetch('http://localhost:3001/api/chat', {
+      const fetchPromise = fetch('https://lumi-backend-production-beef.up.railway.app/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: prompt
-          }]
+          message: userMessage,
+          conversationHistory: conversationHistory
         }),
         signal: abortControllerRef.current.signal
       });
 
+      console.log("📡 Making request to backend with:", {
+        message: userMessage,
+        conversationHistory: conversationHistory
+      });
+      setDebugInfo("📡 Sending to backend...");
+
       // Race between fetch and timeout
       const response = await Promise.race([fetchPromise, timeoutPromise]);
       
+      console.log("✅ Got response:", response.status, response.ok);
+      setDebugInfo(`✅ Got response: ${response.status}`);
+      
       // Check if request was aborted
       if (abortControllerRef.current.signal.aborted) {
+        console.log("❌ Request was aborted");
+        setDebugInfo("❌ Request was aborted");
         return; // Exit silently if aborted
       }
 
@@ -176,28 +159,34 @@ Respond helpfully and intelligently:`;
       let data;
       try {
         data = await response.json();
-        console.log("Backend response:", data);
+        console.log("📦 Backend response data:", data);
       } catch (parseError) {
-        console.error("Failed to parse JSON:", parseError);
+        console.error("❌ Failed to parse JSON:", parseError);
         throw new Error("Invalid response from server");
       }
 
       const aiResponse = data.message || data.text || "I apologize, but I'm having trouble generating a response right now.";
-      console.log("AI response being added to messages:", aiResponse); // 👈 add this
+      console.log("🤖 AI response being added to messages:", aiResponse);
       
       // Validate response
       if (typeof aiResponse !== 'string' || !aiResponse.trim()) {
+        console.log("❌ Invalid AI response:", aiResponse);
         throw new Error("Empty response from server");
       }
      
+      console.log("✅ Adding AI response to messages");
       setMessages([...newMessages, { text: aiResponse.trim(), user: "bot" }]);
       setConnectionError(false); // Reset connection error on success
+      setDebugInfo("✅ Success!");
       
     } catch (error) {
-      console.error("AI Error:", error);
+      console.error("❌ AI Error:", error);
+      setDebugInfo(`❌ Error: ${error.message}`);
       
       // Handle aborted requests
       if (error.name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
+        console.log("❌ Request was cancelled/aborted");
+        setDebugInfo("❌ Request cancelled");
         return; // Don't show error for cancelled requests
       }
       
@@ -219,10 +208,13 @@ Respond helpfully and intelligently:`;
         fallbackResponse = generateSmartResponse(lastUserMessage?.text || '');
       }
       
+      console.log("🔄 Using fallback response:", fallbackResponse);
       setMessages([...newMessages, { text: fallbackResponse, user: "bot" }]);
     } finally {
+      console.log("✅ sendMessage completed, setting loading to false");
       setLoading(false);
       abortControllerRef.current = null;
+      setTimeout(() => setDebugInfo(""), 3000); // Clear debug info after 3 seconds
     }
   };
 
@@ -335,6 +327,19 @@ Respond helpfully and intelligently:`;
       {connectionError && (
         <view className="connection-status error">
           <text>⚠️ Connection issues detected - using backup responses</text>
+        </view>
+      )}
+
+      {/* Debug info display */}
+      {debugInfo && (
+        <view className="debug-info" style={{ 
+          backgroundColor: '#f0f0f0', 
+          padding: '10px', 
+          margin: '10px', 
+          borderRadius: '5px',
+          fontSize: '12px'
+        }}>
+          <text>{debugInfo}</text>
         </view>
       )}
 
