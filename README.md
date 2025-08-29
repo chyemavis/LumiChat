@@ -21,9 +21,79 @@ LumiChat is a personal mindful companion chatbot designed to provide a supportiv
 
 ## APIs Used
 
-- **Google Gemini API:** The application makes direct calls to the Gemini API from the frontend to power the chatbot's conversational abilities.
+- **Google Gemini API:** The application uses a secure backend server to communicate with the Gemini API, ensuring API keys are never exposed to the frontend.
 
-**Note:** The API key is currently exposed on the frontend, which is a security risk. It should be moved to a secure backend environment.
+## Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/chyemavis/LumiChat.git
+cd LumiChat
+```
+
+2. Install frontend dependencies:
+```bash
+npm install
+```
+
+3. Install backend dependencies:
+```bash
+cd backend
+npm install
+```
+
+4. Set up environment variables:
+   - Create a `.env` file in the `backend` directory
+   - Add your Google Gemini API key:
+```env
+GOOGLE_API_KEY=your_gemini_api_key_here
+```
+
+### Running the Application
+
+1. Start the backend server:
+```bash
+cd backend
+node index.js
+```
+The backend will run on `http://localhost:3002`
+
+2. In a new terminal, start the frontend:
+```bash
+npm run dev
+```
+The frontend will run on `http://localhost:3001`
+
+3. Open your browser and navigate to `http://localhost:3001`
+
+## Project Structure
+
+```
+LumiChat/
+├── src/                    # Frontend source code
+│   ├── components/         # React components
+│   ├── styles/            # CSS styles
+│   └── assets/            # Images and static files
+├── backend/               # Backend server
+│   ├── index.js          # Express server
+│   ├── package.json      # Backend dependencies
+│   └── .env              # Environment variables (not committed)
+├── package.json          # Frontend dependencies
+├── lynx.config.js        # Lynx configuration
+└── README.md
+```
+
+## Architecture
+
+- **Frontend:** React-based UI built with Lynx that sends user messages to the backend
+- **Backend:** Express server that securely handles API key management and communicates with Google's Gemini API
+- **Security:** API keys are stored as environment variables on the backend, never exposed to the client
 
 ## Assets
 

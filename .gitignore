@@ -3,6 +3,7 @@ node_modules/
 npm-debug.log
 .npm/
 .env
+**/.env
 
 # Build artifacts (Frontend - typically in your Lynx app's root)
 # If your build output goes into a 'build' or 'dist' folder, add them here.

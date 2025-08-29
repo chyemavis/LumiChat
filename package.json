@@ -5,7 +5,9 @@
   "scripts": {
     "build": "rspeedy build",
     "dev": "rspeedy dev",
-    "start": "node working-backend.js",
+    "start": "rspeedy dev",
+    "backend": "cd backend && node index.js",
+    "dev:full": "concurrently \"npm run backend\" \"npm run dev\"",
     "format": "prettier --write .",
     "preview": "rspeedy preview",
     "test": "vitest run"
