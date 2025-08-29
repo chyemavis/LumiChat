@@ -22,6 +22,7 @@ html, body {
 }
 
 /* Chat container - Full screen for chat mode */
+/* Chat container - Full screen for chat mode */
 .chat-container {
 	position: fixed;
 	top: 0;
@@ -31,8 +32,9 @@ html, body {
 	width: 100vw;
 	height: 100vh;
 	background-color: #ffffff;
-	display: flex;
-	flex-direction: column;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
 }
 
 /* Chat header */
@@ -67,11 +69,15 @@ html, body {
 
 /* Messages list - Lynx compatible scrolling */
 /* This is applied to the <scroll-view> element in your JSX */
+/* TEST: Add red border to confirm CSS is applied */
 .messages {
+	flex: 1;
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
+		overflow-y: auto;
+	min-height: 0;
 }
 
 /* Individual messages - Lynx compatible styling */
@@ -81,6 +87,7 @@ html, body {
 	max-width: 80%;
 	line-height: 1.5;
 	margin-bottom: 2px;
+	word-break: break-word;
 }
 
 /* User messages */
