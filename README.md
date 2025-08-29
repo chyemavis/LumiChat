@@ -26,23 +26,27 @@ LumiChat is a personal mindful companion chatbot designed to provide a supportiv
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - npm or yarn
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/chyemavis/LumiChat.git
 cd LumiChat
 ```
 
 2. Install frontend dependencies:
+
 ```bash
 npm install
 ```
 
 3. Install backend dependencies:
+
 ```bash
 cd backend
 npm install
@@ -51,6 +55,7 @@ npm install
 4. Set up environment variables:
    - Create a `.env` file in the `backend` directory
    - Add your Google Gemini API key:
+
 ```env
 GOOGLE_API_KEY=your_gemini_api_key_here
 ```
@@ -58,16 +63,20 @@ GOOGLE_API_KEY=your_gemini_api_key_here
 ### Running the Application
 
 1. Start the backend server:
+
 ```bash
 cd backend
 node index.js
 ```
+
 The backend will run on `http://localhost:3002`
 
 2. In a new terminal, start the frontend:
+
 ```bash
 npm run dev
 ```
+
 The frontend will run on `http://localhost:3001`
 
 3. Open your browser and navigate to `http://localhost:3001`
@@ -122,5 +131,6 @@ The project uses the following assets for its user interface:
 ---
 
 ## Problem Statement
+
 The rise of LLMs, agents, and AI systems is transforming how we interact with technology. From chatbots to AI-powered tools, a new wave of UI patterns is emerging to meet the demands of this AI Era.
 This track invites you to use Lynx, the newly open-sourced cross-platform UI technologies that power TikTok, to build products or prototypes that explore how AI is reshaping UI, UX and app experiences.
