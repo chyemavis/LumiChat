@@ -85,14 +85,14 @@ export default function AuthScreen({ onLogin }) {
           ) : (
             <>
               <view className="input-group">
-                <text className="input-label">Full Name:</text>
+                <text className="input-label">Username:</text>
                 <input
                   value={fullName}
                   bindinput={(e) => {
                     const newValue = e.detail?.value || e.target?.value || "";
                     setFullName(newValue);
                   }}
-                  placeholder="Enter your full name"
+                  placeholder="Enter your username"
                   className="auth-input"
                 />
               </view>

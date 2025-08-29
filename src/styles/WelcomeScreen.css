@@ -1,31 +1,16 @@
-.welcome-scre.welcome-content {
-  margin-top: 0;
-  align-items: center;
-  padding-bottom: 80px;
-  position: absolute;   /* pin to top */
-  top: 4rem;            /* control spacing */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;  /* reduced gap between elements */
-}
-
 .welcome-content {
-  margin-top: 0;
-  align-items: center;
-  padding-bottom: 50px;
-  position: absolute;   /* pin to top */
-  top: 4rem;            /* control spacing */
+  position: absolute;
+  top: 40%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;  /* reduced gap between elements */
+  align-items: center;
+  gap: 1.00rem;
 }
 
 .app-name {
-  font-size: 5rem;
+  font-size: 4.5rem;
   color: #c2185b;
   font-weight: 700;
   margin-bottom: 0;
@@ -43,28 +28,27 @@
 }
 
 .welcome-text {
-  font-size: 1.9rem;
-  color: #333333;
+  font-size: 1.40rem;
+  color: #c61717;
   display: block;
   line-height: 1.3;
   margin: 0;
   font-family: 'Nunito', 'Arial', sans-serif;
-  font-weight: 420;
+  font-weight: 500;
   text-align: center;
   white-space: nowrap;
 }
 
 .button-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-  position: relative;
+  position: fixed;
+  bottom: 350px; /* Vertically align with avatar */
+  left: 120px;    /* Position on the left */
   z-index: 30;
+  display: flex;
 }
 
 .get-started-btn {
-  background: #eaa7ad;
+  background: hsl(355, 61%, 79%);
   border-radius: 50px;
   padding: 1.2rem 3rem;
   display: flex;
@@ -77,19 +61,19 @@
 }
 
 .get-started-btn-text {
-  color: #333333;
-  font-weight: 500;
+  color: #ffffff;
+  font-weight: 600;
   font-size: 1.4rem;
   letter-spacing: 0.5px;
 }
 
 .welcome-bunny-container {
   position: fixed;
-  bottom: 40px;
-  left: 50%;
+  bottom: 20px;
+  left: 76%;
   transform: translateX(-50%);
-  width: 300px;
-  height: 300px;
+  width: 320px;
+  height: 320px;
   display: flex;
   justify-content: center;
   align-items: center;
