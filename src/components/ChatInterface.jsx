@@ -41,13 +41,13 @@ export default function ChatInterface({ user }) {
       // Get the last user message
       const lastUserMessage = newMessages.filter(m => m.user === "me").pop();
       const userMessage = lastUserMessage ? lastUserMessage.text : "";
-     
+
       // Build conversation context for AI
       const conversationHistory = newMessages
         .slice(-6) // Last 6 messages for context
         .map(msg => `${msg.user === "me" ? "User" : "Assistant"}: ${msg.text}`)
         .join('\n');
-     
+
       // Enhanced prompt with better instructions and capabilities
       const prompt = `You are LumiChat, an advanced AI assistant with specialized knowledge and helpful capabilities. You are engaging, intelligent, and provide practical solutions.
 
@@ -77,25 +77,13 @@ INSTRUCTIONS:
 
 Respond helpfully and intelligently:`;
 
-      // Call Gemini API directly with enhanced prompt
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAGptA81rmXeLLSG2jPlOFImQ31gfCI_5A`, {
+      // Call backend Gemini proxy endpoint (use full URL for local dev)
+      const response = await fetch('http://localhost:3001/api/gemini', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.8, // Higher creativity
-            maxOutputTokens: 400, // Longer responses
-            topP: 0.9,
-            topK: 40
-          }
-        })
+        body: JSON.stringify({ prompt })
       });
 
       if (!response.ok) {
@@ -103,20 +91,20 @@ Respond helpfully and intelligently:`;
       }
 
       const data = await response.json();
-      const aiResponse = data.candidates[0]?.content?.parts[0]?.text || "I apologize, but I'm having trouble generating a response right now.";
-     
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, but I'm having trouble generating a response right now.";
+
       setMessages([...newMessages, { text: aiResponse, user: "bot" }]);
     } catch (error) {
       console.error("AI Error:", error);
-      
+
       if (error.message.includes('429')) {
         // Rate limit - use smart fallback responses
         const smartResponse = generateSmartResponse(userMessage);
         setMessages([...newMessages, { text: smartResponse, user: "bot" }]);
       } else {
         // Other errors - show debug info
-  const errorMessage = `API Error: ${error.message} | Status: ${error.status || 'none'}`;
-  setMessages([...newMessages, { text: errorMessage, user: "bot" }]);
+        const errorMessage = `API Error: ${error.message} | Status: ${error.status || 'none'}`;
+        setMessages([...newMessages, { text: errorMessage, user: "bot" }]);
       }
     } finally {
       setLoading(false);

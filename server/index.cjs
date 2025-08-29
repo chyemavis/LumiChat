@@ -3,8 +3,13 @@ const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
 
+
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3004", // update to your frontend port if different
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
 // Gemini proxy endpoint
@@ -18,7 +23,12 @@ app.post('/api/gemini', async (req, res) => {
   try {
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`;
     const payload = {
-      contents: [{ parts: [{ text: prompt }] }],
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }]
+        }
+      ],
       generationConfig: {
         temperature: 0.8,
         maxOutputTokens: 400,
@@ -34,6 +44,7 @@ app.post('/api/gemini', async (req, res) => {
     });
     console.log('Gemini API response status:', response.status);
     const text = await response.text();
+    console.log('Gemini API raw response:', text);
     let data;
     try {
       data = JSON.parse(text);
