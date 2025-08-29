@@ -1,68 +1,49 @@
-import express from 'express';
-import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import dotenv from 'dotenv';
+import express from "express";
+import dotenv from "dotenv";
+import bodyParser from "body-parser";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
-
 const app = express();
-app.use(cors());
-app.use(express.json());
+const PORT = process.env.PORT || 3001;
 
-// Test route
-app.get('/', (req, res) => {
-  res.json({ message: 'Server is working!', port: process.env.PORT });
+app.use(bodyParser.json());
+
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Initialize Gemini API with key from environment variables
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// Create a chat endpoint
-app.post('/api/chat', async (req, res) => {
+// Chat endpoint
+app.post("/api/chat", async (req, res) => {
   try {
-    console.log('Received chat request:', req.body);
     const { messages } = req.body;
-    
-    if (!messages || !messages.length) {
-      console.error('No messages received in request');
-      return res.status(400).json({ error: 'No messages provided' });
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Invalid request format" });
     }
 
-    console.log('Initializing Gemini model...');
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 400,
-        topP: 0.9,
-        topK: 40
-      }
-    });
-    
-    console.log('Starting chat session...');
-    const chat = model.startChat();
-    
-    const messageContent = messages[messages.length - 1].content;
-    console.log('Sending message to Gemini:', messageContent);
-    
-    const result = await chat.sendMessage(messageContent);
-    const response = await result.response;
-    const responseText = response.text();
-    console.log('Received response from Gemini:', responseText);
-    
-    res.json({ 
-      message: responseText
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const chat = model.startChat({ history: messages });
+    const userMessage = messages[messages.length - 1].content;
+
+    const result = await chat.sendMessage(userMessage);
+    const reply = result.response.text();
+
+    res.json({
+      message: reply,
+      processingTime: `${result.response?.usageMetadata?.totalTokenCount || 0} tokens`,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error in chat endpoint:', error);
-    res.status(500).json({ 
-      error: error.message,
-      details: error.stack
-    });
+    console.error("Error in /api/chat:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-const PORT = process.env.PORT || 3001;  // Changed from 3002 to 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`✅ Health check: http://localhost:${PORT}/health`);
+  console.log(`✅ Chat endpoint: http://localhost:${PORT}/api/chat`);
 });
