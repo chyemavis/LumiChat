@@ -62,7 +62,7 @@ INSTRUCTIONS:
 Respond helpfully and intelligently:`;
 
       // Call Gemini API directly with general assistant prompt
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyBY2wKZEGOJOmB8Uokt1OzVqeMaKit_RSY`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyCOR9KRPh7d_jws42YFGbY7PQD9535kbWE`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

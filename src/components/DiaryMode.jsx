@@ -62,7 +62,7 @@ DIARY MODE INSTRUCTIONS:
 Respond as a caring mood diary companion:`;
 
       // Call Gemini API directly with diary-specific prompt
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyBY2wKZEGOJOmB8Uokt1OzVqeMaKit_RSY`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAGptA81rmXeLLSG2jPlOFImQ31gfCI_5A`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
