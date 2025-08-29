@@ -84,7 +84,7 @@ INSTRUCTIONS:
 Respond helpfully and intelligently:`;
 
       // Call Gemini API directly with enhanced prompt
-      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAGptA81rmXeLLSG2jPlOFImQ31gfCI_5A", {
+      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyBY2wKZEGOJOmB8Uokt1OzVqeMaKit_RSY", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
