@@ -63,8 +63,6 @@ html, body {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
-	max-height: calc(100vh - 170px); /* header + input area height estimate */
-	overflow: hidden;
 }
 
 /* Messages list - Lynx compatible scrolling */
@@ -80,11 +78,9 @@ html, body {
 .message {
 	padding: 12px 16px;
 	border-radius: 18px;
-	max-width: 90%;
+	max-width: 80%;
 	line-height: 1.5;
 	margin-bottom: 2px;
-		/* word-wrap removed: not supported by Lynx CSS parser */
-		/* overflow-wrap removed: not supported by Lynx CSS parser */
 }
 
 /* User messages */
@@ -128,14 +124,10 @@ html, body {
 
 /* Avatar container and name styling */
 .avatar-container {
+	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 8px;
-	/* Ensure message text wraps in Lynx */
-	}
-
-	.message text {
-		word-break: break-all;
 }
 
 .avatar-name {

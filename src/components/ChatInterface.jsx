@@ -9,7 +9,7 @@ export default function ChatInterface({ user }) {
   const [loading, setLoading] = useState(false);
   const [showDiaryPopup, setShowDiaryPopup] = useState(false);
   const [isDiaryMode, setIsDiaryMode] = useState(false);
-  // State declarations moved to top, no useRef needed
+
 
   // If in diary mode, render DiaryMode component
   if (isDiaryMode) {
@@ -32,10 +32,7 @@ export default function ChatInterface({ user }) {
     }
   }, [user]);
 
-  // Auto-scroll to the bottom when new messages are added
-  useEffect(() => {
-  // No need for useRef or scrollIntoView; handled by scroll-view's scroll-into-view prop
-  }, [messages]);
+
 
   // Enhanced AI integration with better context and capabilities
   const sendMessage = async (newMessages) => {
@@ -303,32 +300,31 @@ Respond helpfully and intelligently:`;
 
 
       {/* Messages container with scroll-view */}
-      <view className="messages-container">
-        <scroll-view
-          scroll-orientation="vertical"
-          style={{ flex: 1, width: "100%" }}
-          className="messages"
-        >
-          {messages.map((msg, index) => (
-            <view key={index} className={msg.user === "me" ? "message-wrapper me" : "message-wrapper bot"}>
-              <view className={msg.user === "me" ? "message me" : "message bot"}>
-                <text>{msg.text}</text>
-              </view>
-            {/* An empty view at the end to act as a scroll target */}
-            scroll-into-view={messages.length > 0 ? 'messagesEnd' : ''}
-            {index === messages.length - 1 && <view id="messagesEnd" />}
-            </view>
-          ))}
-          {/* Loading indicator when waiting for AI response */}
-          {loading && (
-            <view className="message-wrapper bot">
-              <view className="message bot">
-                <text>🤖 Thinking...</text>
-              </view>
-            </view>
-          )}
-        </scroll-view>
-      </view>
+      <view className="messages-container">
+        <scroll-view
+          scroll-orientation="vertical"
+          scroll-into-view="messagesEnd"
+          style={{ flex: 1, width: "100%" }}
+          className="messages"
+        >
+          {messages.map((msg, index) => (
+            <view key={index} className={msg.user === "me" ? "message-wrapper me" : "message-wrapper bot"}>
+              <view className={msg.user === "me" ? "message me" : "message bot"}>
+                <text>{msg.text}</text>
+              </view>
+              {index === messages.length - 1 && <view id="messagesEnd" />}
+            </view>
+          ))}
+          {/* Loading indicator when waiting for AI response */}
+          {loading && (
+            <view className="message-wrapper bot">
+              <view className="message bot">
+                <text>🤖 Thinking...</text>
+              </view>
+            </view>
+          )}
+        </scroll-view>
+      </view>
 
 
       {/* Input area fixed at bottom */}
