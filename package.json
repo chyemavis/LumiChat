@@ -12,6 +12,7 @@
   "dependencies": {
     "@ai-sdk/google": "^2.0.11",
     "@ai-sdk/openai": "^2.0.22",
+    "@google/generative-ai": "^0.24.1",
     "@lynx-js/react": "^0.112.4",
     "ai": "^5.0.26",
     "cors": "^2.8.5",
