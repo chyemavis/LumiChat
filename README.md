@@ -2,6 +2,10 @@
 
 LumiChat is a personal mindful companion chatbot designed to provide a supportive and engaging conversational experience. The application features a complete user flow, from a welcoming splash screen to a secure authentication process and the core chat interface.
 
+## Video Demo
+
+[Watch a demo on YouTube](https://youtube.com/shorts/wr7nr1IIERs?feature=share)
+
 ## Features and Functionality
 
 - **Splash Screen:** A visually appealing entry point to the application.
@@ -153,3 +157,5 @@ The project uses the following assets for its user interface:
 
 The rise of LLMs, agents, and AI systems is transforming how we interact with technology. From chatbots to AI-powered tools, a new wave of UI patterns is emerging to meet the demands of this AI Era.
 This track invites you to use Lynx, the newly open-sourced cross-platform UI technologies that power TikTok, to build products or prototypes that explore how AI is reshaping UI, UX and app experiences.
+
+## Video URL
