@@ -9,13 +9,24 @@ export default function ChatInterface({ user }) {
   const [loading, setLoading] = useState(false);
   const [showDiaryPopup, setShowDiaryPopup] = useState(false);
   const [isDiaryMode, setIsDiaryMode] = useState(false);
-  const [connectionError, setConnectionError] = useState(false); // Start with no connection error
+  const [connectionError, setConnectionError] = useState(false);
   
-  // Refs for cleanup
+  // Replace with your actual Railway URL
+  const BACKEND_URL = 'https://your-railway-url.railway.app';
+  
+  // Debug state
+  const [debugLogs, setDebugLogs] = useState([]);
+  const [showDebug, setShowDebug] = useState(false); // Set to true for debugging
+  
   const abortControllerRef = useRef(null);
   const scrollViewRef = useRef(null);
 
-  // Cleanup on unmount
+  const addDebugLog = (message, type = "info") => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = { id: Date.now(), timestamp, message, type };
+    setDebugLogs(prev => [...prev.slice(-9), logEntry]);
+  };
+
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -24,7 +35,6 @@ export default function ChatInterface({ user }) {
     };
   }, []);
 
-  // If in diary mode, render DiaryMode component
   if (isDiaryMode) {
     return (
       <DiaryMode 
@@ -34,7 +44,6 @@ export default function ChatInterface({ user }) {
     );
   }
 
-  // Welcome message when user enters general chat
   useEffect(() => {
     if (user) {
       const welcomeMessage = {
@@ -42,10 +51,10 @@ export default function ChatInterface({ user }) {
         user: "bot"
       };
       setMessages([welcomeMessage]);
+      addDebugLog(`Welcome message set for user: ${user.username}`, "info");
     }
   }, [user]);
 
-  // Auto-scroll to the bottom when new messages are added
   useEffect(() => {
     const scrollView = scrollViewRef.current;
     if (scrollView && scrollView.scrollTo) {
@@ -58,198 +67,76 @@ export default function ChatInterface({ user }) {
     }
   }, [messages]);
 
-  // Enhanced sendMessage with better error handling and timeout
   const sendMessage = async (newMessages) => {
-    console.log("🚀 sendMessage called with:", newMessages.length, "messages");
+    addDebugLog(`Sending message to Railway backend`, "info");
     setLoading(true);
     setConnectionError(false);
     
-    // Test backend connectivity first
-    try {
-      console.log("🧪 Testing backend health...");
-      const healthResponse = await fetch('http://localhost:3002/health');
-      console.log("🧪 Health check result:", healthResponse.status, healthResponse.ok);
-      
-      if (!healthResponse.ok) {
-        throw new Error(`Backend health check failed: ${healthResponse.status}`);
-      }
-    } catch (healthError) {
-      console.error("❌ Backend health check failed:", healthError);
-      setLoading(false);
-      setConnectionError(true);
-      return;
-    }
-    
-    // Create new abort controller for this request
     abortControllerRef.current = new AbortController();
     
+    const lastUserMessage = newMessages.filter(m => m.user === "me").pop();
+    const userMessage = lastUserMessage ? lastUserMessage.text : "";
+    
+    addDebugLog(`User message: "${userMessage.substring(0, 50)}..."`, "info");
+    
     try {
-      // Get the last user message
-      const lastUserMessage = newMessages.filter(m => m.user === "me").pop();
-      const userMessage = lastUserMessage ? lastUserMessage.text : "";
-      
       if (!userMessage.trim()) {
         throw new Error("Empty message");
       }
-     
-      // Build conversation context for AI
-      const conversationHistory = newMessages
-        .slice(-6) // Last 6 messages for context
-        .map(msg => `${msg.user === "me" ? "User" : "Assistant"}: ${msg.text}`)
-        .join('\n');
-     
-      // Enhanced prompt with better instructions and capabilities
-      const prompt = `You are LumiChat, an advanced AI assistant with specialized knowledge and helpful capabilities. You are engaging, intelligent, and provide practical solutions.
+      
+      const requestBody = {
+        messages: [{
+          role: 'user',
+          content: userMessage
+        }]
+      };
 
-PERSONALITY: Friendly, knowledgeable, and solution-oriented. You don't just suggest "search online" - you provide actual helpful information and creative alternatives.
+      addDebugLog(`Sending to: ${BACKEND_URL}/api/chat`, "info");
 
-CAPABILITIES:
-- Weather: Instead of saying "check online", provide weather-related advice, seasonal tips, outfit suggestions, or ask about their location for context
-- Coding: Give specific code examples, debugging steps, and best practices
-- Learning: Recommend specific resources, learning paths, and practical exercises
-- Creative tasks: Brainstorm ideas, provide frameworks, and suggest approaches
-- Problem-solving: Break down complex issues into actionable steps
-
-CURRENT DATE: August 28, 2025
-
-CONVERSATION CONTEXT:
-${conversationHistory}
-
-USER'S LATEST MESSAGE: "${userMessage}"
-
-INSTRUCTIONS:
-- Be specific and actionable rather than generic
-- If you can't access real-time data, provide relevant knowledge, tips, or alternatives
-- Ask follow-up questions to better understand their needs
-- Give examples and practical suggestions
-- Keep responses conversational but informative (2-4 sentences)
-- Show personality and engagement
-
-Respond helpfully and intelligently:`;
-
-      // Create timeout promise
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 30000); // 30 seconds
-      });
-
-      // Call our secure backend endpoint
-      const fetchPromise = fetch('http://localhost:3002/api/chat', {
+      const response = await fetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: prompt
-          }]
-        }),
+        body: JSON.stringify(requestBody),
         signal: abortControllerRef.current.signal
       });
-
-      // Race between fetch and timeout
-      const response = await Promise.race([fetchPromise, timeoutPromise]);
       
-      // Check if request was aborted
-      if (abortControllerRef.current.signal.aborted) {
-        return; // Exit silently if aborted
-      }
-
-      // Handle different response statuses
+      addDebugLog(`Response status: ${response.status}`, response.ok ? "success" : "error");
+      
       if (!response.ok) {
-        let errorMessage = `Request failed with status ${response.status}`;
-        
-        switch (response.status) {
-          case 400:
-            errorMessage = "Invalid request format";
-            break;
-          case 401:
-            errorMessage = "Authentication required";
-            break;
-          case 403:
-            errorMessage = "Access denied";
-            break;
-          case 429:
-            errorMessage = "Too many requests - please slow down";
-            break;
-          case 499:
-            errorMessage = "Connection interrupted - please try again";
-            break;
-          case 500:
-          case 502:
-          case 503:
-          case 504:
-            errorMessage = "Server temporarily unavailable";
-            setConnectionError(true);
-            break;
-          default:
-            errorMessage = "Network error occurred";
-        }
-        
-        throw new Error(errorMessage);
+        const errorText = await response.text();
+        addDebugLog(`Error response: ${errorText}`, "error");
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      // Parse response
-      let data;
-      try {
-        data = await response.json();
-        console.log("Backend response:", data);
-      } catch (parseError) {
-        console.error("Failed to parse JSON:", parseError);
-        throw new Error("Invalid response from server");
-      }
-
-      const aiResponse = data.message || data.text || "I apologize, but I'm having trouble generating a response right now.";
-      console.log("🤖 AI response received:", aiResponse);
-      console.log("� Current messages before adding:", newMessages.length);
+      const data = await response.json();
+      const aiResponse = data.message || data.text || "No response received";
       
-      // Validate response
-      if (typeof aiResponse !== 'string' || !aiResponse.trim()) {
-        console.log("❌ Invalid AI response - empty or not string");
-        throw new Error("Empty response from server");
-      }
-     
+      addDebugLog(`AI response: "${aiResponse.substring(0, 50)}..."`, "success");
+      
       const updatedMessages = [...newMessages, { text: aiResponse.trim(), user: "bot" }];
-      console.log("🔢 Messages after adding bot response:", updatedMessages.length);
-      console.log("🔄 Setting messages to:", updatedMessages);
-      
       setMessages(updatedMessages);
-      setConnectionError(false); // Reset connection error on success
+      setConnectionError(false);
       
     } catch (error) {
-      console.error("AI Error:", error);
+      addDebugLog(`Error: ${error.message}`, "error");
       
-      // Handle aborted requests
-      if (error.name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
-        return; // Don't show error for cancelled requests
+      if (error.name === 'AbortError') {
+        return;
       }
       
-      let fallbackResponse;
-      
-      if (error.message.includes('timeout') || error.message.includes('499')) {
-        // Connection/timeout issues - use smart fallback
-        setConnectionError(true);
-        fallbackResponse = generateSmartResponse(lastUserMessage?.text || '');
-      } else if (error.message.includes('429') || error.message.includes('Too many requests')) {
-        // Rate limiting - inform user
-        fallbackResponse = "I'm receiving too many requests right now. Please wait a moment before sending another message.";
-      } else if (error.message.includes('server') || error.message.includes('Server')) {
-        // Server errors - use fallback
-        setConnectionError(true);
-        fallbackResponse = generateSmartResponse(lastUserMessage?.text || '');
-      } else {
-        // Other errors - generic fallback
-        fallbackResponse = generateSmartResponse(lastUserMessage?.text || '');
-      }
-      
+      const fallbackResponse = generateSmartResponse(userMessage);
       setMessages([...newMessages, { text: fallbackResponse, user: "bot" }]);
+      setConnectionError(true);
+      
     } finally {
       setLoading(false);
       abortControllerRef.current = null;
     }
   };
 
-  // Cancel current request
   const cancelRequest = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -257,16 +144,9 @@ Respond helpfully and intelligently:`;
     }
   };
 
-  // Smart response system with contextual length and tone
   const generateSmartResponse = (userMessage = '') => {
     const message = userMessage.toLowerCase();
     
-    // Connection error context
-    const connectionPrefix = connectionError ? 
-      "I'm having trouble connecting to my main systems right now, but I'm still here to help! " : 
-      "I'm running on backup systems, but I can still assist you! ";
-    
-    // Simple greetings - short and friendly
     if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
       const greetings = [
         "Hi there! How can I help you today?",
@@ -277,69 +157,9 @@ Respond helpfully and intelligently:`;
       return greetings[Math.floor(Math.random() * greetings.length)];
     }
     
-    // Emotional/mental health content - longer and empathetic
-    if (message.includes('sad') || message.includes('depressed') || message.includes('anxious') || 
-        message.includes('stressed') || message.includes('worried') || message.includes('scared') ||
-        message.includes('lonely') || message.includes('upset') || message.includes('crying') ||
-        message.includes('hurt') || message.includes('pain') || message.includes('struggling')) {
-      return connectionPrefix + "I can hear that you're going through something difficult right now. Your feelings are completely valid, and I want you to know that you're not alone. Would you like to talk about what's been weighing on your mind? Sometimes expressing these feelings can provide relief.";
-    }
-    
-    // Relationship/personal issues - medium length, supportive
-    if (message.includes('relationship') || message.includes('boyfriend') || message.includes('girlfriend') ||
-        message.includes('family') || message.includes('friend') || message.includes('conflict') ||
-        message.includes('argument') || message.includes('breakup') || message.includes('divorce')) {
-      return connectionPrefix + "Relationships can be really complex and challenging. I'd like to help you think through this situation. What aspect of this is weighing on you most? Sometimes talking it out can help clarify your feelings.";
-    }
-    
-    // Health concerns - caring and supportive
-    if (message.includes('sick') || message.includes('pain') || message.includes('doctor') ||
-        message.includes('health') || message.includes('medication') || message.includes('hospital')) {
-      return connectionPrefix + "I'm concerned about what you're going through with your health. While I can't provide medical advice, I want you to know I care about your wellbeing. Have you been able to speak with a healthcare professional about this?";
-    }
-    
-    // Work/school stress - understanding and practical
-    if (message.includes('work') || message.includes('job') || message.includes('school') ||
-        message.includes('exam') || message.includes('deadline') || message.includes('boss') ||
-        message.includes('homework') || message.includes('project')) {
-      return connectionPrefix + "Work and school pressures can feel overwhelming sometimes. I'd like to help you think through this. What's been the most challenging part? Sometimes breaking things down into smaller steps can make them feel more manageable.";
-    }
-    
-    // Simple how are you - short and caring
-    if (message.includes('how are you')) {
-      return "I'm doing well, thank you for asking! How are you feeling today?";
-    }
-    
-    // Questions about capabilities - brief and helpful
-    if (message.includes('what can you do') || message.includes('capabilities')) {
-      return connectionPrefix + "I can chat, answer questions, help with problems, and provide support. What would be most helpful for you right now?";
-    }
-    
-    // Weather questions - short and practical
-    if (message.includes('weather')) {
-      return "I can't check live weather, but I can help you plan for different conditions! What's your location and what are you planning?";
-    }
-    
-    // Creative/brainstorming - medium length, enthusiastic
-    if (message.includes('idea') || message.includes('creative') || message.includes('brainstorm')) {
-      return connectionPrefix + "I love creative projects! What kind of creative challenge are you working on? Let's explore some possibilities together!";
-    }
-    
-    // Learning/study help - encouraging and practical
-    if (message.includes('learn') || message.includes('study') || message.includes('explain')) {
-      return connectionPrefix + "Learning new things is exciting! What subject are you diving into? I can help break things down step by step.";
-    }
-    
-    // Technical/coding - direct and helpful
-    if (message.includes('code') || message.includes('programming') || message.includes('bug')) {
-      return connectionPrefix + "I enjoy helping with coding challenges! What programming language or technical issue are you working with? I can suggest debugging steps or best practices.";
-    }
-    
-    // General questions - medium length, engaging
-    return connectionPrefix + "Could you tell me more about what you're thinking about? I'd love to explore this with you and see how I can help!";
+    return "I'm having trouble connecting to my main systems right now, but I'm still here to help! Could you tell me more about what you're thinking about?";
   };
 
-  // Handler for when the user taps the send button
   const handleSend = () => {
     const trimmedInput = inputValue ? inputValue.trim() : "";
     if (!trimmedInput || loading) {
@@ -354,7 +174,70 @@ Respond helpfully and intelligently:`;
 
   return (
     <view className="chat-container">
-      {/* Connection status indicator */}
+      {/* Backend Status */}
+      <view style={{
+        backgroundColor: '#e8f5e8',
+        border: '1px solid #4caf50',
+        padding: '8px 12px',
+        margin: '10px',
+        borderRadius: '4px',
+        fontSize: '14px'
+      }}>
+        <text>Connected to Railway Backend</text>
+      </view>
+
+      {/* Debug Panel */}
+      {showDebug && (
+        <view style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          width: '300px',
+          maxHeight: '200px',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          overflow: 'auto',
+          zIndex: 1000
+        }}>
+          <view style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <text style={{ fontWeight: 'bold', color: '#00ff00' }}>Debug Logs</text>
+            <view style={{ display: 'flex', gap: '5px' }}>
+              <text bindtap={() => setDebugLogs([])} style={{ cursor: 'pointer', color: '#ffff00' }}>Clear</text>
+              <text bindtap={() => setShowDebug(false)} style={{ cursor: 'pointer', color: '#ff0000' }}>Hide</text>
+            </view>
+          </view>
+          {debugLogs.map(log => (
+            <view key={log.id} style={{ 
+              marginBottom: '3px', 
+              color: log.type === 'error' ? '#ff6b6b' : 
+                    log.type === 'success' ? '#51cf66' : 
+                    log.type === 'warning' ? '#ffd43b' : '#74c0fc'
+            }}>
+              <text>[{log.timestamp}] {log.message}</text>
+            </view>
+          ))}
+        </view>
+      )}
+
+      {!showDebug && (
+        <view bindtap={() => setShowDebug(true)} style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '5px 10px',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          zIndex: 1000
+        }}>
+          <text>Debug</text>
+        </view>
+      )}
+
       {connectionError && (
         <view className="connection-status error" bindtap={() => setConnectionError(false)} style={{
           backgroundColor: '#fff3cd',
@@ -365,11 +248,10 @@ Respond helpfully and intelligently:`;
           cursor: 'pointer',
           fontSize: '14px'
         }}>
-          <text>⚠️ Connection issues - using offline responses (tap to dismiss)</text>
+          <text>Connection issues - using offline responses (tap to dismiss)</text>
         </view>
       )}
 
-      {/* Mood Diary Popup */}
       {showDiaryPopup && (
         <view className="popup-overlay" bindtap={() => setShowDiaryPopup(false)}>
           <view className="popup-content" bindtap={(e) => e && e.stopPropagation && e.stopPropagation()}>
@@ -393,7 +275,6 @@ Respond helpfully and intelligently:`;
         </view>
       )}
 
-      {/* General chat header */}
       <view className="chat-header">
         <view className="header-avatar">
           <Avatar size="large" />
@@ -406,7 +287,6 @@ Respond helpfully and intelligently:`;
         </view>
       </view>
 
-      {/* Messages container with scroll-view */}
       <view className="messages-container">
         <scroll-view
           ref={scrollViewRef}
@@ -423,11 +303,10 @@ Respond helpfully and intelligently:`;
             </view>
           ))}
           
-          {/* Loading indicator with cancel option */}
           {loading && (
             <view className="message-wrapper bot">
               <view className="message bot">
-                <text>🤖 Thinking...</text>
+                <text>Thinking...</text>
                 <view className="cancel-request" bindtap={cancelRequest}>
                   <text>Cancel</text>
                 </view>
@@ -437,7 +316,6 @@ Respond helpfully and intelligently:`;
         </scroll-view>
       </view>
 
-      {/* Input area fixed at bottom */}
       <view className="input-area">
         <input
           value={inputValue}
