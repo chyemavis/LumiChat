@@ -11,7 +11,6 @@ export default function ChatInterface({ user }) {
   const [isDiaryMode, setIsDiaryMode] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   
-  // Try URLs in order of preference
   const BACKEND_URLS = [
     'https://d0b468cda42d.ngrok-free.app', 
     'http://localhost:3002',
@@ -19,28 +18,13 @@ export default function ChatInterface({ user }) {
   
   const [currentBackendUrl, setCurrentBackendUrl] = useState(null);
   
-  // Debug state
-  const [debugLogs, setDebugLogs] = useState([]);
-  const [showDebug, setShowDebug] = useState(true);
-  
   const abortControllerRef = useRef(null);
   const scrollViewRef = useRef(null);
 
-  const addDebugLog = (message, type = "info") => {
-    const timestamp = new Date().toLocaleTimeString();
-    const logEntry = { id: Date.now(), timestamp, message, type };
-    setDebugLogs(prev => [...prev.slice(-9), logEntry]);
-  };
-
-  // Find working backend URL on startup
   useEffect(() => {
     const findWorkingBackend = async () => {
-      addDebugLog("Testing backend URLs...", "info");
-      
       for (const baseUrl of BACKEND_URLS) {
         try {
-          addDebugLog(`Testing: ${baseUrl}`, "info");
-          
           const response = await fetch(`${baseUrl}/health`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
@@ -50,16 +34,13 @@ export default function ChatInterface({ user }) {
             const data = await response.json();
             if (data.status === 'ok' && data.geminiConfigured) {
               setCurrentBackendUrl(baseUrl);
-              addDebugLog(`Found working backend: ${baseUrl}`, "success");
               return;
             }
           }
         } catch (error) {
-          addDebugLog(`${baseUrl} failed: ${error.message}`, "warning");
+          // ignore failed backend
         }
       }
-      
-      addDebugLog("No working backend found", "error");
       setConnectionError(true);
     };
     
@@ -90,7 +71,6 @@ export default function ChatInterface({ user }) {
         user: "bot"
       };
       setMessages([welcomeMessage]);
-      addDebugLog(`Welcome message set`, "info");
     }
   }, [user, currentBackendUrl]);
 
@@ -108,13 +88,11 @@ export default function ChatInterface({ user }) {
 
   const sendMessage = async (newMessages) => {
     if (!currentBackendUrl) {
-      addDebugLog("No backend URL available", "error");
       const fallbackResponse = "I'm having trouble connecting to my systems right now, but I'm still here to help!";
       setMessages([...newMessages, { text: fallbackResponse, user: "bot" }]);
       return;
     }
 
-    addDebugLog(`Sending message to: ${currentBackendUrl}`, "info");
     setLoading(true);
     setConnectionError(false);
     
@@ -134,8 +112,6 @@ export default function ChatInterface({ user }) {
         }]
       };
 
-      addDebugLog(`Request: ${userMessage.substring(0, 30)}...`, "info");
-
       const response = await fetch(`${currentBackendUrl}/api/chat`, {
         method: 'POST',
         headers: {
@@ -146,8 +122,6 @@ export default function ChatInterface({ user }) {
         signal: abortControllerRef.current.signal
       });
       
-      addDebugLog(`Response: ${response.status}`, response.ok ? "success" : "error");
-      
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -155,15 +129,11 @@ export default function ChatInterface({ user }) {
       const data = await response.json();
       const aiResponse = data.message || data.text || "No response received";
       
-      addDebugLog(`AI: ${aiResponse.substring(0, 50)}...`, "success");
-      
       const updatedMessages = [...newMessages, { text: aiResponse.trim(), user: "bot" }];
       setMessages(updatedMessages);
       setConnectionError(false);
       
     } catch (error) {
-      addDebugLog(`Error: ${error.message}`, "error");
-      
       if (error.name === 'AbortError') {
         return;
       }
@@ -192,80 +162,6 @@ export default function ChatInterface({ user }) {
 
   return (
     <view className="chat-container">
-      {/* Backend Status */}
-      {currentBackendUrl ? (
-        <view style={{
-          backgroundColor: '#e8f5e8',
-          border: '1px solid #4caf50',
-          padding: '8px 12px',
-          margin: '10px',
-          borderRadius: '4px',
-          fontSize: '14px'
-        }}>
-          <text>Connected to: {currentBackendUrl}</text>
-        </view>
-      ) : (
-        <view style={{
-          backgroundColor: '#fff3cd',
-          border: '1px solid #ffeaa7',
-          padding: '8px 12px',
-          margin: '10px',
-          borderRadius: '4px',
-          fontSize: '14px'
-        }}>
-          <text>Finding backend server...</text>
-        </view>
-      )}
-
-      {/* Debug Panel */}
-      {showDebug && (
-        <view style={{
-          position: 'fixed',
-          top: '60px',
-          right: '10px',
-          width: '300px',
-          maxHeight: '200px',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '10px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          overflow: 'auto',
-          zIndex: 1000
-        }}>
-          <view style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <text style={{ fontWeight: 'bold', color: '#00ff00' }}>Debug</text>
-            <text bindtap={() => setShowDebug(false)} style={{ cursor: 'pointer', color: '#ff0000' }}>Hide</text>
-          </view>
-          {debugLogs.map(log => (
-            <view key={log.id} style={{ 
-              marginBottom: '3px', 
-              color: log.type === 'error' ? '#ff6b6b' : 
-                    log.type === 'success' ? '#51cf66' : 
-                    log.type === 'warning' ? '#ffd43b' : '#74c0fc'
-            }}>
-              <text>[{log.timestamp}] {log.message}</text>
-            </view>
-          ))}
-        </view>
-      )}
-
-      {!showDebug && (
-        <view bindtap={() => setShowDebug(true)} style={{
-          position: 'fixed',
-          top: '60px',
-          right: '10px',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '5px 10px',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          zIndex: 1000
-        }}>
-          <text>Debug</text>
-        </view>
-      )}
-
       {connectionError && (
         <view className="connection-status error" bindtap={() => setConnectionError(false)} style={{
           backgroundColor: '#f8d7da',
