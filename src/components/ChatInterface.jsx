@@ -11,12 +11,17 @@ export default function ChatInterface({ user }) {
   const [isDiaryMode, setIsDiaryMode] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   
-  // Replace with your actual Railway URL
-  const BACKEND_URL = 'http://localhost:3002';
+  // Try URLs in order of preference
+  const BACKEND_URLS = [
+    'https://d0b468cda42d.ngrok-free.app', 
+    'http://localhost:3002',
+  ];
+  
+  const [currentBackendUrl, setCurrentBackendUrl] = useState(null);
   
   // Debug state
   const [debugLogs, setDebugLogs] = useState([]);
-  const [showDebug, setShowDebug] = useState(false); // Set to true for debugging
+  const [showDebug, setShowDebug] = useState(true);
   
   const abortControllerRef = useRef(null);
   const scrollViewRef = useRef(null);
@@ -26,6 +31,40 @@ export default function ChatInterface({ user }) {
     const logEntry = { id: Date.now(), timestamp, message, type };
     setDebugLogs(prev => [...prev.slice(-9), logEntry]);
   };
+
+  // Find working backend URL on startup
+  useEffect(() => {
+    const findWorkingBackend = async () => {
+      addDebugLog("Testing backend URLs...", "info");
+      
+      for (const baseUrl of BACKEND_URLS) {
+        try {
+          addDebugLog(`Testing: ${baseUrl}`, "info");
+          
+          const response = await fetch(`${baseUrl}/health`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.status === 'ok' && data.geminiConfigured) {
+              setCurrentBackendUrl(baseUrl);
+              addDebugLog(`Found working backend: ${baseUrl}`, "success");
+              return;
+            }
+          }
+        } catch (error) {
+          addDebugLog(`${baseUrl} failed: ${error.message}`, "warning");
+        }
+      }
+      
+      addDebugLog("No working backend found", "error");
+      setConnectionError(true);
+    };
+    
+    findWorkingBackend();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -45,15 +84,15 @@ export default function ChatInterface({ user }) {
   }
 
   useEffect(() => {
-    if (user) {
+    if (user && currentBackendUrl) {
       const welcomeMessage = {
         text: `Hello ${user.username}! I'm Lumi, your friendly AI assistant! What's on your mind today?`,
         user: "bot"
       };
       setMessages([welcomeMessage]);
-      addDebugLog(`Welcome message set for user: ${user.username}`, "info");
+      addDebugLog(`Welcome message set`, "info");
     }
-  }, [user]);
+  }, [user, currentBackendUrl]);
 
   useEffect(() => {
     const scrollView = scrollViewRef.current;
@@ -68,7 +107,14 @@ export default function ChatInterface({ user }) {
   }, [messages]);
 
   const sendMessage = async (newMessages) => {
-    addDebugLog(`Sending message to Railway backend`, "info");
+    if (!currentBackendUrl) {
+      addDebugLog("No backend URL available", "error");
+      const fallbackResponse = "I'm having trouble connecting to my systems right now, but I'm still here to help!";
+      setMessages([...newMessages, { text: fallbackResponse, user: "bot" }]);
+      return;
+    }
+
+    addDebugLog(`Sending message to: ${currentBackendUrl}`, "info");
     setLoading(true);
     setConnectionError(false);
     
@@ -77,26 +123,20 @@ export default function ChatInterface({ user }) {
     const lastUserMessage = newMessages.filter(m => m.user === "me").pop();
     const userMessage = lastUserMessage ? lastUserMessage.text : "";
     
-    addDebugLog(`User message: "${userMessage.substring(0, 50)}..."`, "info");
-    
     try {
       if (!userMessage.trim()) {
         throw new Error("Empty message");
       }
       
-      const formattedMessages = newMessages.map(msg => ({
-        role: msg.user === 'me' ? 'user' : 'model',
-        parts: [{ text: msg.text }]
-      }));
-
       const requestBody = {
-        // Send the entire formatted history
-        messages: formattedMessages
+        messages: [{
+          parts: [{ text: userMessage }]
+        }]
       };
 
-      addDebugLog(`Sending to: ${BACKEND_URL}/api/chat`, "info");
+      addDebugLog(`Request: ${userMessage.substring(0, 30)}...`, "info");
 
-      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+      const response = await fetch(`${currentBackendUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,18 +146,16 @@ export default function ChatInterface({ user }) {
         signal: abortControllerRef.current.signal
       });
       
-      addDebugLog(`Response status: ${response.status}`, response.ok ? "success" : "error");
+      addDebugLog(`Response: ${response.status}`, response.ok ? "success" : "error");
       
       if (!response.ok) {
-        const errorText = await response.text();
-        addDebugLog(`Error response: ${errorText}`, "error");
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+        throw new Error(`HTTP ${response.status}`);
       }
 
       const data = await response.json();
       const aiResponse = data.message || data.text || "No response received";
       
-      addDebugLog(`AI response: "${aiResponse.substring(0, 50)}..."`, "success");
+      addDebugLog(`AI: ${aiResponse.substring(0, 50)}...`, "success");
       
       const updatedMessages = [...newMessages, { text: aiResponse.trim(), user: "bot" }];
       setMessages(updatedMessages);
@@ -130,7 +168,7 @@ export default function ChatInterface({ user }) {
         return;
       }
       
-      const fallbackResponse = generateSmartResponse(userMessage);
+      const fallbackResponse = "I'm having trouble connecting to my main systems right now, but I'm still here to help! Could you tell me more about what you're thinking about?";
       setMessages([...newMessages, { text: fallbackResponse, user: "bot" }]);
       setConnectionError(true);
       
@@ -138,29 +176,6 @@ export default function ChatInterface({ user }) {
       setLoading(false);
       abortControllerRef.current = null;
     }
-  };
-
-  const cancelRequest = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      setLoading(false);
-    }
-  };
-
-  const generateSmartResponse = (userMessage = '') => {
-    const message = userMessage.toLowerCase();
-    
-    if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
-      const greetings = [
-        "Hi there! How can I help you today?",
-        "Hello! What's on your mind?",
-        "Hey! How are you doing?",
-        "Hi! What would you like to chat about?"
-      ];
-      return greetings[Math.floor(Math.random() * greetings.length)];
-    }
-    
-    return "I'm having trouble connecting to my main systems right now, but I'm still here to help! Could you tell me more about what you're thinking about?";
   };
 
   const handleSend = () => {
@@ -178,22 +193,35 @@ export default function ChatInterface({ user }) {
   return (
     <view className="chat-container">
       {/* Backend Status */}
-      <view style={{
-        backgroundColor: '#e8f5e8',
-        border: '1px solid #4caf50',
-        padding: '8px 12px',
-        margin: '10px',
-        borderRadius: '4px',
-        fontSize: '14px'
-      }}>
-        <text>Connected to Railway Backend</text>
-      </view>
+      {currentBackendUrl ? (
+        <view style={{
+          backgroundColor: '#e8f5e8',
+          border: '1px solid #4caf50',
+          padding: '8px 12px',
+          margin: '10px',
+          borderRadius: '4px',
+          fontSize: '14px'
+        }}>
+          <text>Connected to: {currentBackendUrl}</text>
+        </view>
+      ) : (
+        <view style={{
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffeaa7',
+          padding: '8px 12px',
+          margin: '10px',
+          borderRadius: '4px',
+          fontSize: '14px'
+        }}>
+          <text>Finding backend server...</text>
+        </view>
+      )}
 
       {/* Debug Panel */}
       {showDebug && (
         <view style={{
           position: 'fixed',
-          top: '10px',
+          top: '60px',
           right: '10px',
           width: '300px',
           maxHeight: '200px',
@@ -206,11 +234,8 @@ export default function ChatInterface({ user }) {
           zIndex: 1000
         }}>
           <view style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <text style={{ fontWeight: 'bold', color: '#00ff00' }}>Debug Logs</text>
-            <view style={{ display: 'flex', gap: '5px' }}>
-              <text bindtap={() => setDebugLogs([])} style={{ cursor: 'pointer', color: '#ffff00' }}>Clear</text>
-              <text bindtap={() => setShowDebug(false)} style={{ cursor: 'pointer', color: '#ff0000' }}>Hide</text>
-            </view>
+            <text style={{ fontWeight: 'bold', color: '#00ff00' }}>Debug</text>
+            <text bindtap={() => setShowDebug(false)} style={{ cursor: 'pointer', color: '#ff0000' }}>Hide</text>
           </view>
           {debugLogs.map(log => (
             <view key={log.id} style={{ 
@@ -228,7 +253,7 @@ export default function ChatInterface({ user }) {
       {!showDebug && (
         <view bindtap={() => setShowDebug(true)} style={{
           position: 'fixed',
-          top: '10px',
+          top: '60px',
           right: '10px',
           backgroundColor: 'rgba(0,0,0,0.8)',
           color: 'white',
@@ -243,15 +268,15 @@ export default function ChatInterface({ user }) {
 
       {connectionError && (
         <view className="connection-status error" bindtap={() => setConnectionError(false)} style={{
-          backgroundColor: '#fff3cd',
-          border: '1px solid #ffeaa7',
+          backgroundColor: '#f8d7da',
+          border: '1px solid #f5c6cb',
           padding: '8px 12px',
           margin: '10px',
           borderRadius: '4px',
           cursor: 'pointer',
           fontSize: '14px'
         }}>
-          <text>Connection issues - using offline responses (tap to dismiss)</text>
+          <text>Connection issues - using offline responses</text>
         </view>
       )}
 
@@ -310,9 +335,6 @@ export default function ChatInterface({ user }) {
             <view className="message-wrapper bot">
               <view className="message bot">
                 <text>Thinking...</text>
-                <view className="cancel-request" bindtap={cancelRequest}>
-                  <text>Cancel</text>
-                </view>
               </view>
             </view>
           )}
@@ -327,12 +349,12 @@ export default function ChatInterface({ user }) {
             setInputValue(newValue);
           }}
           placeholder="Type your message..."
-          disabled={loading}
+          disabled={loading || !currentBackendUrl}
         />
         <view
           className="send-button"
           bindtap={handleSend}
-          style={loading || !inputValue.trim() ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+          style={loading || !inputValue.trim() || !currentBackendUrl ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
         >
           <text>{loading ? "..." : "Send"}</text>
         </view>
