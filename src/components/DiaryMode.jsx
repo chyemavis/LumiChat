@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, view, text, input, useEffect, useRef } from "@lynx-js/react";
 import Avatar from "./Avatar.jsx";
 import "../styles/ChatInterface.css";
 
@@ -22,9 +22,12 @@ export default function DiaryMode({ user, onBackToChat }) {
   // Auto-scroll to the bottom when new messages are added
   useEffect(() => {
     const scrollView = scrollViewRef.current;
-    if (scrollView) {
+    if (scrollView && scrollView.scrollTo) {
       setTimeout(() => {
-        scrollView.scrollTop = scrollView.scrollHeight;
+        const scrollHeight = Array.from(scrollView.children).reduce(
+          (height, child) => height + child.offsetHeight, 0
+        );
+        scrollView.scrollTo(0, scrollHeight);
       }, 100);
     }
   }, [messages]);
@@ -93,58 +96,57 @@ export default function DiaryMode({ user, onBackToChat }) {
   };
 
   return (
-    <div className="chat-container">
+    <view className="chat-container">
       {/* Header */}
-      <div className="chat-header">
-        <div className="header-avatar"><Avatar size="large" /></div>
-        <span>Mood Diary</span>
-        <div className="header-buttons">
-          <button className="header-button" onClick={onBackToChat}>
-            ←
-          </button>
-        </div>
-      </div>
+      <view className="chat-header">
+        <view className="header-avatar"><Avatar size="large" /></view>
+        <text>Mood Diary</text>
+        <view className="header-buttons">
+          <view className="header-button" bindtap={onBackToChat}>
+            <text>←</text>
+          </view>
+        </view>
+      </view>
 
       {/* Messages */}
-      <div className="messages-container">
-        <div
+      <view className="messages-container">
+        <scroll-view
           ref={scrollViewRef}
-          style={{ flex: 1, width: "100%", overflowY: "auto" }}
+          scroll-orientation="vertical"
+          scroll-y={true}
+          style={{ flex: 1, width: "100%" }}
           className="messages"
         >
           {messages.map((msg, index) => (
-            <div key={index} className={msg.user === "me" ? "message-wrapper me" : "message-wrapper bot"}>
-              <div className={msg.user === "me" ? "message me" : "message bot"}>
-                <span>{msg.text}</span>
-              </div>
-            </div>
+            <view key={index} className={msg.user === "me" ? "message-wrapper me" : "message-wrapper bot"}>
+              <view className={msg.user === "me" ? "message me" : "message bot"}>
+                <text>{msg.text}</text>
+              </view>
+            </view>
           ))}
           {loading && (
-            <div className="message-wrapper bot">
-              <div className="message bot"><span>🤖 Thinking...</span></div>
-            </div>
+            <view className="message-wrapper bot">
+              <view className="message bot"><text>🤖 Thinking...</text></view>
+            </view>
           )}
-        </div>
-      </div>
+        </scroll-view>
+      </view>
 
       {/* Input */}
-      <div className="input-area">
+      <view className="input-area">
         <input
           value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
+          bindinput={(res) => setInputValue(res.detail.value)}
           placeholder="Share your thoughts and feelings..."
-          onKeyDown={e => { if (e.key === 'Enter') handleSend(); }}
-          disabled={loading}
         />
-        <button
+        <view
           className="send-button"
-          onClick={handleSend}
+          bindtap={handleSend}
           style={loading ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-          disabled={loading}
         >
-          {loading ? "..." : "Send"}
-        </button>
-      </div>
-    </div>
+          <text>{loading ? "..." : "Send"}</text>
+        </view>
+      </view>
+    </view>
   );
 }

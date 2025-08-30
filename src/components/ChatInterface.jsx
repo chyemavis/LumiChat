@@ -12,7 +12,7 @@ export default function ChatInterface({ user }) {
   const [connectionError, setConnectionError] = useState(false);
   
   const BACKEND_URLS = [
-    'https://d0b468cda42d.ngrok-free.app', 
+    'https://4a0a76d27125.ngrok-free.app', 
     'http://localhost:3002',
   ];
   
