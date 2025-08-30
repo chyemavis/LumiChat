@@ -1,30 +1,25 @@
-import express from "express";
-import dotenv from "dotenv";
-import bodyParser from "body-parser";
-import cors from "cors";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 
-// Load environment variables and show debug info
-const envResult = dotenv.config();
-console.log("📄 Environment loading result:", envResult);
-console.log("🔑 GEMINI_API_KEY present:", !!process.env.GEMINI_API_KEY);
-console.log("🔑 API Key length:", process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0);
-console.log("🔑 First 10 chars of API Key:", process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 10) + "..." : "N/A");
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(cors({
-  origin: true,  // Allow all origins for local development
+  origin: true,
   credentials: true
 }));
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Add request logging
-app.use((req, res, next) => {
-  console.log(`📥 ${req.method} ${req.path} from ${req.headers.origin || 'unknown'}`);
-  next();
-});
+// Gemini API Configuration
+const API_KEY = process.env.GEMINI_API_KEY;
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const systemInstruction = [{
+    text: `You are Lumi, a kind, supportive, and empathetic mental wellness companion. Your role is to listen, encourage, and provide thoughtful responses that help the user feel understood. Always respond in a calm, gentle, and reassuring tone. Ask reflective or open-ended questions that help users explore their thoughts. Provide practical coping strategies (e.g., mindfulness, breathing exercises, journaling, gratitude prompts). Avoid giving medical diagnoses or prescriptions. If a user mentions serious distress or crisis (e.g., wanting to hurt themselves), gently encourage them to reach out to a trusted person or seek professional help. Keep responses short, simple, and easy to read. Use encouraging language like: “I hear you,” “That sounds tough,” or “It’s okay to feel that way.”`,
+}];
 
 // Enhanced health check
 app.get("/health", (req, res) => {
@@ -40,77 +35,52 @@ app.get("/health", (req, res) => {
   res.json(health);
 });
 
-// Enhanced chat endpoint with detailed debugging
-app.post("/api/chat", async (req, res) => {
-  console.log("🤖 Chat request received");
-  console.log("📝 Request body keys:", Object.keys(req.body));
-  
-  try {
-    const { messages } = req.body;
-    
-    if (!messages || !Array.isArray(messages)) {
-      console.error("❌ Invalid request format - messages not array");
-      return res.status(400).json({ error: "Invalid request format" });
-    }
-
-    console.log("📝 Messages array length:", messages.length);
-    console.log("📝 Last message:", messages[messages.length - 1]);
-
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("❌ GEMINI_API_KEY not found in environment");
-      return res.status(500).json({ 
-        error: "GEMINI_API_KEY not configured",
-        hint: "Add GEMINI_API_KEY to your .env file"
-      });
-    }
-
-    console.log("🔑 API key found, initializing Gemini...");
-    
+app.post('/api/chat', async (req, res) => {
+    console.log("🤖 Chat request received");
     try {
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      console.log("✅ GoogleGenerativeAI initialized");
-      
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      console.log("✅ Model created");
+        // Correctly read the 'messages' property from the request body
+        const { messages } = req.body;
+        
+        if (!messages) {
+            return res.status(400).json({ error: "Request body must contain a 'messages' property." });
+        }
 
-      const chat = model.startChat({ history: messages.slice(0, -1) });
-      console.log("✅ Chat started");
-      
-      const userMessage = messages[messages.length - 1].content;
-      console.log("💬 Sending to Gemini:", userMessage.substring(0, 100) + "...");
+        const payload = {
+            contents: messages, // Use the 'messages' array as the contents
+            systemInstruction: {
+                parts: systemInstruction
+            }
+        };
 
-      const result = await chat.sendMessage(userMessage);
-      console.log("✅ Gemini response received");
-      
-      const reply = result.response.text();
-      console.log("📤 Response length:", reply.length);
-      console.log("📤 Response preview:", reply.substring(0, 100) + "...");
+        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-      res.json({
-        message: reply,
-        processingTime: `${result.response?.usageMetadata?.totalTokenCount || 0} tokens`,
-        timestamp: new Date().toISOString(),
-      });
-      
-    } catch (geminiError) {
-      console.error("❌ Gemini API Error:", geminiError);
-      console.error("❌ Error message:", geminiError.message);
-      console.error("❌ Error status:", geminiError.status);
-      
-      return res.status(500).json({ 
-        error: "Gemini AI service error",
-        details: geminiError.message,
-        status: geminiError.status
-      });
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('API Error:', errorData);
+            return res.status(response.status).json({ error: errorData.error.message });
+        }
+
+        const result = await response.json();
+        
+        if (!result.candidates || !result.candidates[0].content || !result.candidates[0].content.parts[0].text) {
+            console.error('Invalid API response structure:', result);
+            return res.status(500).json({ error: "Invalid response structure from AI service." });
+        }
+
+        const botResponse = result.candidates[0].content.parts[0].text;
+        
+        res.json({ message: botResponse });
+
+    } catch (error) {
+        console.error('An error occurred on the server:', error);
+        res.status(500).json({ error: "Internal server error" });
     }
-    
-  } catch (error) {
-    console.error("💥 Unexpected error:", error);
-    res.status(500).json({ 
-      error: "Internal server error",
-      message: error.message
-    });
-  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
@@ -118,10 +88,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Health check: http://localhost:${PORT}/health`);
   console.log(`✅ Chat endpoint: http://localhost:${PORT}/api/chat`);
   console.log(`🌐 Network access: http://192.168.1.1:${PORT}/api/chat`);
-  
-  // Show environment status
-  console.log("\n📋 Environment Status:");
-  console.log(`   GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✅ Set (' + process.env.GEMINI_API_KEY.length + ' chars)' : '❌ Not set'}`);
-  console.log(`   PORT: ${process.env.PORT || '3002 (default)'}`);
-  console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
 });

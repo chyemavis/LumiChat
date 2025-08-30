@@ -12,7 +12,7 @@ export default function ChatInterface({ user }) {
   const [connectionError, setConnectionError] = useState(false);
   
   // Replace with your actual Railway URL
-  const BACKEND_URL = 'https://your-railway-url.railway.app';
+  const BACKEND_URL = 'http://localhost:3002';
   
   // Debug state
   const [debugLogs, setDebugLogs] = useState([]);
@@ -84,11 +84,14 @@ export default function ChatInterface({ user }) {
         throw new Error("Empty message");
       }
       
+      const formattedMessages = newMessages.map(msg => ({
+        role: msg.user === 'me' ? 'user' : 'model',
+        parts: [{ text: msg.text }]
+      }));
+
       const requestBody = {
-        messages: [{
-          role: 'user',
-          content: userMessage
-        }]
+        // Send the entire formatted history
+        messages: formattedMessages
       };
 
       addDebugLog(`Sending to: ${BACKEND_URL}/api/chat`, "info");
